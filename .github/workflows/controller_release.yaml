@@ -50,10 +50,10 @@ jobs:
           source ./patches-flux/VERSION
           BASE_VERSION=$(eval "echo \${$(echo ${{ inputs.controller }} | tr '-' '_' | tr '[a-z]' '[A-Z]')_BASE_VERSION}")
           SUFFIX_VERSION=$(eval "echo \${$(echo ${{ inputs.controller }} | tr '-' '_' | tr '[a-z]' '[A-Z]')_SUFFIX_VERSION}")
-          if [[ ! "$SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
+          if [[ "$SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
             VERSION=${BASE_VERSION}-${SUFFIX_VERSION}
           else
-            VERSION=${BASE_VERSION}
+            VERSION=${BASE_VERSION}-wa
           fi
           bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/${{ inputs.controller }}.git" ${{ inputs.controller }} ${BASE_VERSION} 
           unlink patches-flux
