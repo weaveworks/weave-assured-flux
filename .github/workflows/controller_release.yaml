@@ -15,7 +15,7 @@ on:
       image_digest:
         value: ${{ jobs.build-controller.outputs.image_digest }}
 jobs:
-  build-controller:
+  release-controller:
     outputs:
       image_url: ${{ steps.slsa.outputs.image_url }}
       image_digest: ${{ steps.slsa.outputs.image_digest }}
@@ -50,7 +50,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Patch v2.1
+      - name: Clone and patch repo
         id: patch
         run: |
           ln -s patches-flux-${{ inputs.version }} patches-flux
@@ -62,7 +62,7 @@ jobs:
             SUFFIX_VERSION=""
           fi
           VERSION=${BASE_VERSION}-${SUFFIX_VERSION}-${{ steps.prep.outputs.VERSION }}
-          bash -x ./patch-repo.sh "github.com/${{ inputs.controller }}.git" ${{ inputs.controller }} ${BASE_VERSION} 
+          bash -xv ./patch-repo.sh "github.com/${{ inputs.controller }}.git" ${{ inputs.controller }} ${BASE_VERSION} 
           unlink patches-flux
           echo ::set-output name=VERSION::${VERSION}
       - name: Generate images meta

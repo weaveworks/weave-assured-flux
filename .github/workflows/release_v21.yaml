@@ -19,47 +19,39 @@ permissions:
   id-token: write
   packages: write
 
-env:
-  SOURCE-CONTROLLER: "source-controller"
-  KUSTOMIZE-CONTROLLER: "kustomize-controller"
-  HELM-CONTROLLER: "helm-controller"
-  IMAGE-REFLECTOR-CONTROLLER: "image-reflector-controller"
-  IMAGE-AUTOMATION-CONTROLLER: "image-automation-controller"
-  NOTIFICATION-CONTROLLER: "notification-controller"
-
 jobs:
-  build-source-controller:
+  release-source-controller:
     uses: ./.github/workflows/controller_release.yaml
     with:
-      controller: ${{ env.SOURCE-CONTROLLER }}
+      controller: source-controller
       version: v21
   
-  build-kustomize-controller:
+  release-kustomize-controller:
     uses: ./.github/workflows/controller_release.yaml
     with:
-      controller: ${{ env.KUSTOMIZE-CONTROLLER }}
+      controller: kustomize-controller
       version: v21
 
-  build-helm-controller:
+  release-helm-controller:
     uses: ./.github/workflows/controller_release.yaml
     with:
-      controller: ${{ env.HELM-CONTROLLER }}
+      controller: helm-controller
       version: v21
   
-  build-image-reflector-controller:
+  release-image-reflector-controller:
     uses: ./.github/workflows/controller_release.yaml
     with:
-      controller: ${{ env.IMAGE-REFLECTOR-CONTROLLER }}
+      controller: image-reflector-controller
       version: v21
 
-  build-image-automation-controller:
+  release-image-automation-controller:
     uses: ./.github/workflows/controller_release.yaml
     with:
-      controller: ${{ env.IMAGE-AUTOMATION-CONTROLLER }}
+      controller: image-automation-controller
       version: v21
 
-  build-notification-controller:
+  release-notification-controller:
     uses: ./.github/workflows/controller_release.yaml
     with:
-      controller: ${{ env.NOTIFICATION-CONTROLLER }}
+      controller: notification-controller
       version: v21
