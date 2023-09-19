@@ -1,0 +1,57 @@
+name: release_v21
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - patches-flux-v2.1/**
+      - VERSION_21
+      - .github/workflows/release_v21.yaml
+      - .github/workflows/controller_release.yaml
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+
+jobs:
+  release-source-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: source-controller
+      version: v21
+  
+  release-kustomize-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: kustomize-controller
+      version: v21
+
+  release-helm-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: helm-controller
+      version: v21
+  
+  release-image-reflector-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: image-reflector-controller
+      version: v21
+
+  release-image-automation-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: image-automation-controller
+      version: v21
+
+  release-notification-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: notification-controller
+      version: v21
