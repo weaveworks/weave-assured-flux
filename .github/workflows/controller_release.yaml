@@ -15,7 +15,7 @@ on:
       image_digest:
         value: ${{ jobs.build-controller.outputs.image_digest }}
 jobs:
-  build-controller:
+  release-controller:
     outputs:
       image_url: ${{ steps.slsa.outputs.image_url }}
       image_digest: ${{ steps.slsa.outputs.image_digest }}
