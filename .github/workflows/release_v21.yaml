@@ -1,0 +1,65 @@
+name: release_v21
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+    paths:
+      - patches-flux-v2.1/**
+      - VERSION_21
+      - .github/workflows/release_v21.yaml
+      - .github/workflows/controller_release.yaml
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+
+env:
+  SOURCE-CONTROLLER: "source-controller"
+  KUSTOMIZE-CONTROLLER: "kustomize-controller"
+  HELM-CONTROLLER: "helm-controller"
+  IMAGE-REFLECTOR-CONTROLLER: "image-reflector-controller"
+  IMAGE-AUTOMATION-CONTROLLER: "image-automation-controller"
+  NOTIFICATION-CONTROLLER: "notification-controller"
+
+jobs:
+  build-source-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: ${{ env.SOURCE-CONTROLLER }}
+      version: v21
+  
+  build-kustomize-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: ${{ env.KUSTOMIZE-CONTROLLER }}
+      version: v21
+
+  build-helm-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: ${{ env.HELM-CONTROLLER }}
+      version: v21
+  
+  build-image-reflector-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: ${{ env.IMAGE-REFLECTOR-CONTROLLER }}
+      version: v21
+
+  build-image-automation-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: ${{ env.IMAGE-AUTOMATION-CONTROLLER }}
+      version: v21
+
+  build-notification-controller:
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: ${{ env.NOTIFICATION-CONTROLLER }}
+      version: v21
