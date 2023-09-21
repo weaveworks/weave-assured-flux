@@ -1,0 +1,20 @@
+Change image name to target weaveworks registry
+
+From: Soule BA <bah.soule@gmail.com>
+
+
+---
+ config/manager/kustomization.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config/manager/kustomization.yaml b/config/manager/kustomization.yaml
+index 7236acd..b5c355c 100644
+--- a/config/manager/kustomization.yaml
++++ b/config/manager/kustomization.yaml
+@@ -4,5 +4,5 @@ resources:
+   - deployment.yaml
+ images:
+   - name: fluxcd/image-reflector-controller
+-    newName: fluxcd/image-reflector-controller
++    newName: ghcr.io/weaveworks/image-reflector-controller
+     newTag: v0.30.0
