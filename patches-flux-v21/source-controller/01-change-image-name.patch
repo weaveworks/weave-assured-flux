@@ -1,0 +1,20 @@
+Change image name to target weaveworks registry
+
+From: Soule BA <soule@weave.works>
+
+
+---
+ config/manager/kustomization.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config/manager/kustomization.yaml b/config/manager/kustomization.yaml
+index e779e04..5225328 100644
+--- a/config/manager/kustomization.yaml
++++ b/config/manager/kustomization.yaml
+@@ -5,5 +5,5 @@ resources:
+ - deployment.yaml
+ images:
+ - name: fluxcd/source-controller
+-  newName: fluxcd/source-controller
++  newName: ghcr.io/weaveworks/source-controller
+   newTag: v1.1.1

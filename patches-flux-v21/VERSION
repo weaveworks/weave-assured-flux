@@ -10,3 +10,5 @@ IMAGE_REFLECTOR_CONTROLLER_BASE_VERSION=v0.30.0
 IMAGE_REFLECTOR_CONTROLLER_SUFFIX_VERSION=wa.$(cat patches-flux/image-reflector-controller/series | cut -d- -f1 | tail -1)
 IMAGE_AUTOMATION_CONTROLLER_BASE_VERSION=v0.36.1
 IMAGE_AUTOMATION_CONTROLLER_SUFFIX_VERSION=wa.$(cat patches-flux/image-automation-controller/series | cut -d- -f1 | tail -1)
+FLUX2_BASE_VERSION=v2.1.1
+FLUX2_SUFFIX_VERSION=wa.$(cat patches-flux/flux2/series | cut -d- -f1 | tail -1)
