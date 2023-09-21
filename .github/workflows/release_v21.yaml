@@ -142,7 +142,7 @@ jobs:
     secrets:
       registry-password: ${{ secrets.GITHUB_TOKEN }}
   
-  release-cli:
+  release-flux-cli:
     outputs:
       hashes: ${{ steps.slsa.outputs.hashes }}
       image_url: ${{ steps.slsa.outputs.image_url }}
