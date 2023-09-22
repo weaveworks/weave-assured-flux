@@ -41,7 +41,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN }}
       - name: Clone and patch repo
         id: patch
         run: |
