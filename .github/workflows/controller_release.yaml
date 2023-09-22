@@ -9,6 +9,9 @@ on:
       version:
         required: true
         type: string
+    secrets:
+      ghcrToken:
+        required: true
     outputs:
       image_url:
         value: ${{ jobs.release-controller.outputs.image_url }}
@@ -22,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
       packages: write
     steps:
       - name: Checkout
@@ -43,8 +47,8 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: weave-ghcr-bot
+          password: ${{ secrets.ghcrToken }}
       - name: Clone and patch repo
         id: patch
         run: |
@@ -60,8 +64,8 @@ jobs:
           fi
           bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/${{ inputs.controller }}.git" ${{ inputs.controller }} ${BASE_VERSION} 
           unlink patches-flux
-          echo ::set-output name=version::${VERSION}
-          echo ::set-output name=base_version::${BASE_VERSION}
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "base_version=${BASE_VERSION}" >> $GITHUB_OUTPUT
       - name: Generate images meta
         id: meta
         uses: docker/metadata-action@818d4b7b91585d195f67373fd9cb0332e31a7175 # v4.6.0
@@ -94,7 +98,7 @@ jobs:
           mkdir -p config/release
           sed -i "s/${{ steps.patch.outputs.base_version }}/${{ steps.patch.outputs.version }}/g" ./${{ inputs.controller }}/config/manager/kustomization.yaml
           kustomize build ./${{ inputs.controller }}/config/crd > ./config/release/${{ inputs.controller }}.crds.yaml
-          kustomize build ./${{ inputs.controller }}/config/manager > ./config/release/${{ inputs.controller}}deployment.yaml
+          kustomize build ./${{ inputs.controller }}/config/manager > ./config/release/${{ inputs.controller}}.deployment.yaml
       - name: Upload release artifacts
         uses: actions/upload-artifact@v3
         with:

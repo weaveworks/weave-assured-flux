@@ -5,12 +5,8 @@ From: Soule BA <soule@weave.works>
 
 ---
  action/action.yml                                  |    4 ++--
- cmd/flux/bootstrap.go                              |   16 +++++++++++++++-
- cmd/flux/bootstrap_bitbucket_server.go             |    4 +++-
- cmd/flux/bootstrap_git.go                          |    4 +++-
- cmd/flux/bootstrap_github.go                       |    4 +++-
- cmd/flux/bootstrap_gitlab.go                       |    4 +++-
- cmd/flux/install.go                                |   20 +++++++++++++++++---
+ cmd/flux/bootstrap.go                              |    2 +-
+ cmd/flux/install.go                                |    2 +-
  manifests/bases/helm-controller/kustomization.yaml |    4 ++--
  .../image-automation-controller/kustomization.yaml |    4 ++--
  .../image-reflector-controller/kustomization.yaml  |    4 ++--
@@ -19,7 +15,9 @@ From: Soule BA <soule@weave.works>
  .../bases/source-controller/kustomization.yaml     |    4 ++--
  manifests/crds/kustomization.yaml                  |   12 ++++++------
  manifests/install/kustomization.yaml               |   12 ++++++------
- 15 files changed, 70 insertions(+), 34 deletions(-)
+ pkg/manifestgen/install/install.go                 |    4 ++--
+ pkg/manifestgen/install/options.go                 |    4 ++--
+ 13 files changed, 32 insertions(+), 32 deletions(-)
 
 diff --git a/action/action.yml b/action/action.yml
 index d88786ee..583e77e3 100644
@@ -44,193 +42,33 @@ index d88786ee..583e77e3 100644
            curl -fsSL -o "$DL_DIR/$FLUX_TARGET_FILE" "$FLUX_DOWNLOAD_URL/$FLUX_TARGET_FILE"
            curl -fsSL -o "$DL_DIR/$FLUX_CHECKSUMS_FILE" "$FLUX_DOWNLOAD_URL/$FLUX_CHECKSUMS_FILE"
 diff --git a/cmd/flux/bootstrap.go b/cmd/flux/bootstrap.go
-index 2441551d..b08d2363 100644
+index 2441551d..68479ad9 100644
 --- a/cmd/flux/bootstrap.go
 +++ b/cmd/flux/bootstrap.go
-@@ -73,6 +73,8 @@ type bootstrapFlags struct {
- 	gpgKeyID       string
- 
- 	commitMessageAppendix string
-+
-+	assured bool
- }
- 
- const (
-@@ -90,8 +92,10 @@ func init() {
+@@ -90,7 +90,7 @@ func init() {
  	bootstrapCmd.PersistentFlags().StringSliceVar(&bootstrapArgs.extraComponents, "components-extra", nil,
  		"list of components in addition to those supplied or defaulted, accepts values such as 'image-reflector-controller,image-automation-controller'")
  
 -	bootstrapCmd.PersistentFlags().StringVar(&bootstrapArgs.registry, "registry", "ghcr.io/fluxcd",
-+	bootstrapCmd.PersistentFlags().StringVar(&bootstrapArgs.registry, "registry", "",
++	bootstrapCmd.PersistentFlags().StringVar(&bootstrapArgs.registry, "registry", "ghcr.io/weaveworks",
  		"container registry where the Flux controller images are published")
-+	bootstrapCmd.PersistentFlags().BoolVar(&bootstrapArgs.assured, "assured", false,
-+	 "use weave-assured container images from the registry")
  	bootstrapCmd.PersistentFlags().StringVar(&bootstrapArgs.imagePullSecret, "image-pull-secret", "",
  		"Kubernetes secret name used for pulling the controller images from a private registry")
- 
-@@ -148,6 +152,16 @@ func bootstrapComponents() []string {
- 	return append(bootstrapArgs.defaultComponents, bootstrapArgs.extraComponents...)
- }
- 
-+func bootstrapRegistry() string {
-+	if bootstrapArgs.registry == "" {
-+		bootstrapArgs.registry = rootArgs.defaults.Registry
-+		if bootstrapArgs.assured {
-+			bootstrapArgs.registry = "ghcr.io/weaveworks"
-+		}
-+	}
-+	return bootstrapArgs.registry
-+}
-+
- func buildEmbeddedManifestBase() (string, error) {
- 	if !isEmbeddedVersion(bootstrapArgs.version) {
- 		return "", nil
-diff --git a/cmd/flux/bootstrap_bitbucket_server.go b/cmd/flux/bootstrap_bitbucket_server.go
-index 40eccca8..c82eca7f 100644
---- a/cmd/flux/bootstrap_bitbucket_server.go
-+++ b/cmd/flux/bootstrap_bitbucket_server.go
-@@ -188,7 +188,7 @@ func bootstrapBServerCmdRun(cmd *cobra.Command, args []string) error {
- 		Version:                bootstrapArgs.version,
- 		Namespace:              *kubeconfigArgs.Namespace,
- 		Components:             bootstrapComponents(),
--		Registry:               bootstrapArgs.registry,
-+		Registry:               bootstrapRegistry(),
- 		ImagePullSecret:        bootstrapArgs.imagePullSecret,
- 		WatchAllNamespaces:     bootstrapArgs.watchAllNamespaces,
- 		NetworkPolicy:          bootstrapArgs.networkPolicy,
-@@ -202,6 +202,8 @@ func bootstrapBServerCmdRun(cmd *cobra.Command, args []string) error {
- 	}
- 	if customBaseURL := bootstrapArgs.manifestsPath; customBaseURL != "" {
- 		installOptions.BaseURL = customBaseURL
-+	} else if bootstrapArgs.assured {
-+		installOptions.BaseURL = "https://github.com/weaveworks/weave-assured-flux/releases"
- 	}
- 
- 	// Source generation and secret config
-diff --git a/cmd/flux/bootstrap_git.go b/cmd/flux/bootstrap_git.go
-index bd9dc80a..5c862a33 100644
---- a/cmd/flux/bootstrap_git.go
-+++ b/cmd/flux/bootstrap_git.go
-@@ -193,7 +193,7 @@ func bootstrapGitCmdRun(cmd *cobra.Command, args []string) error {
- 		Version:                bootstrapArgs.version,
- 		Namespace:              *kubeconfigArgs.Namespace,
- 		Components:             bootstrapComponents(),
--		Registry:               bootstrapArgs.registry,
-+		Registry:               bootstrapRegistry(),
- 		ImagePullSecret:        bootstrapArgs.imagePullSecret,
- 		WatchAllNamespaces:     bootstrapArgs.watchAllNamespaces,
- 		NetworkPolicy:          bootstrapArgs.networkPolicy,
-@@ -207,6 +207,8 @@ func bootstrapGitCmdRun(cmd *cobra.Command, args []string) error {
- 	}
- 	if customBaseURL := bootstrapArgs.manifestsPath; customBaseURL != "" {
- 		installOptions.BaseURL = customBaseURL
-+	} else if bootstrapArgs.assured {
-+		installOptions.BaseURL = "https://github.com/weaveworks/weave-assured-flux/releases"
- 	}
- 
- 	// Source generation and secret config
-diff --git a/cmd/flux/bootstrap_github.go b/cmd/flux/bootstrap_github.go
-index 8c7c214e..88bb6cbd 100644
---- a/cmd/flux/bootstrap_github.go
-+++ b/cmd/flux/bootstrap_github.go
-@@ -183,7 +183,7 @@ func bootstrapGitHubCmdRun(cmd *cobra.Command, args []string) error {
- 		Version:                bootstrapArgs.version,
- 		Namespace:              *kubeconfigArgs.Namespace,
- 		Components:             bootstrapComponents(),
--		Registry:               bootstrapArgs.registry,
-+		Registry:               bootstrapRegistry(),
- 		ImagePullSecret:        bootstrapArgs.imagePullSecret,
- 		WatchAllNamespaces:     bootstrapArgs.watchAllNamespaces,
- 		NetworkPolicy:          bootstrapArgs.networkPolicy,
-@@ -197,6 +197,8 @@ func bootstrapGitHubCmdRun(cmd *cobra.Command, args []string) error {
- 	}
- 	if customBaseURL := bootstrapArgs.manifestsPath; customBaseURL != "" {
- 		installOptions.BaseURL = customBaseURL
-+	} else if bootstrapArgs.assured {
-+		installOptions.BaseURL = "https://github.com/weaveworks/weave-assured-flux/releases"
- 	}
- 
- 	// Source generation and secret config
-diff --git a/cmd/flux/bootstrap_gitlab.go b/cmd/flux/bootstrap_gitlab.go
-index 6bb111c3..578f1667 100644
---- a/cmd/flux/bootstrap_gitlab.go
-+++ b/cmd/flux/bootstrap_gitlab.go
-@@ -208,7 +208,7 @@ func bootstrapGitLabCmdRun(cmd *cobra.Command, args []string) error {
- 		Version:                bootstrapArgs.version,
- 		Namespace:              *kubeconfigArgs.Namespace,
- 		Components:             bootstrapComponents(),
--		Registry:               bootstrapArgs.registry,
-+		Registry:               bootstrapRegistry(),
- 		ImagePullSecret:        bootstrapArgs.imagePullSecret,
- 		WatchAllNamespaces:     bootstrapArgs.watchAllNamespaces,
- 		NetworkPolicy:          bootstrapArgs.networkPolicy,
-@@ -222,6 +222,8 @@ func bootstrapGitLabCmdRun(cmd *cobra.Command, args []string) error {
- 	}
- 	if customBaseURL := bootstrapArgs.manifestsPath; customBaseURL != "" {
- 		installOptions.BaseURL = customBaseURL
-+	} else if bootstrapArgs.assured {
-+		installOptions.BaseURL = "https://github.com/weaveworks/weave-assured-flux/releases"
- 	}
- 
- 	// Source generation and secret config
 diff --git a/cmd/flux/install.go b/cmd/flux/install.go
-index 53712021..a0c1162c 100644
+index 53712021..6bb96c4e 100644
 --- a/cmd/flux/install.go
 +++ b/cmd/flux/install.go
-@@ -63,6 +63,7 @@ type installFlags struct {
- 	defaultComponents  []string
- 	extraComponents    []string
- 	registry           string
-+	assured            bool
- 	imagePullSecret    string
- 	branch             string
- 	watchAllNamespaces bool
-@@ -86,8 +87,8 @@ func init() {
+@@ -80,7 +80,7 @@ func init() {
+ 	installCmd.Flags().BoolVar(&installArgs.export, "export", false,
+ 		"write the install manifests to stdout and exit")
+ 	installCmd.Flags().StringVarP(&installArgs.version, "version", "v", "",
+-		"toolkit version, when specified the manifests are downloaded from https://github.com/fluxcd/flux2/releases")
++		"toolkit version, when specified the manifests are downloaded from https://github.com/weaveworks/weave-assured-flux/releases")
+ 	installCmd.Flags().StringSliceVar(&installArgs.defaultComponents, "components", rootArgs.defaults.Components,
+ 		"list of components, accepts comma-separated values")
  	installCmd.Flags().StringSliceVar(&installArgs.extraComponents, "components-extra", nil,
- 		"list of components in addition to those supplied or defaulted, accepts values such as 'image-reflector-controller,image-automation-controller'")
- 	installCmd.Flags().StringVar(&installArgs.manifestsPath, "manifests", "", "path to the manifest directory")
--	installCmd.Flags().StringVar(&installArgs.registry, "registry", rootArgs.defaults.Registry,
--		"container registry where the toolkit images are published")
-+	installCmd.Flags().StringVar(&installArgs.registry, "registry", "", "container registry where the toolkit images are published")
-+	installCmd.Flags().BoolVar(&installArgs.assured, "assured", false, "use weave-assured-flux version")
- 	installCmd.Flags().StringVar(&installArgs.imagePullSecret, "image-pull-secret", "",
- 		"Kubernetes secret name used for pulling the toolkit images from a private registry")
- 	installCmd.Flags().BoolVar(&installArgs.watchAllNamespaces, "watch-all-namespaces", rootArgs.defaults.WatchAllNamespaces,
-@@ -148,7 +149,7 @@ func installCmdRun(cmd *cobra.Command, args []string) error {
- 		Version:                installArgs.version,
- 		Namespace:              *kubeconfigArgs.Namespace,
- 		Components:             components,
--		Registry:               installArgs.registry,
-+		Registry:               installRegistry(),
- 		ImagePullSecret:        installArgs.imagePullSecret,
- 		WatchAllNamespaces:     installArgs.watchAllNamespaces,
- 		NetworkPolicy:          installArgs.networkPolicy,
-@@ -162,6 +163,9 @@ func installCmdRun(cmd *cobra.Command, args []string) error {
- 
- 	if installArgs.manifestsPath == "" {
- 		opts.BaseURL = install.MakeDefaultOptions().BaseURL
-+		if installArgs.assured {
-+			opts.BaseURL = "https://github.com/weaveworks/weave-assured-flux/releases"
-+		}
- 	}
- 
- 	manifest, err := install.Generate(opts, manifestsBase)
-@@ -210,3 +214,13 @@ func installCmdRun(cmd *cobra.Command, args []string) error {
- 	logger.Successf("install finished")
- 	return nil
- }
-+
-+func installRegistry() string {
-+	if installArgs.registry == "" {
-+		installArgs.registry = rootArgs.defaults.Registry
-+		if installArgs.assured {
-+			installArgs.registry = "ghcr.io/weaveworks"
-+		}
-+	}
-+	return installArgs.registry
-+}
 diff --git a/manifests/bases/helm-controller/kustomization.yaml b/manifests/bases/helm-controller/kustomization.yaml
-index 2037bdfe..c81018a0 100644
+index 2037bdfe..57136941 100644
 --- a/manifests/bases/helm-controller/kustomization.yaml
 +++ b/manifests/bases/helm-controller/kustomization.yaml
 @@ -1,8 +1,8 @@
@@ -239,13 +77,13 @@ index 2037bdfe..c81018a0 100644
  resources:
 -- https://github.com/fluxcd/helm-controller/releases/download/v0.36.1/helm-controller.crds.yaml
 -- https://github.com/fluxcd/helm-controller/releases/download/v0.36.1/helm-controller.deployment.yaml
-+- ../../../helm-controller/helm-controller.crds.yaml
-+- ../../../helm-controller/helm-controller.deployment.yaml
++- ./helm-controller.crds.yaml
++- ./helm-controller.deployment.yaml
  - account.yaml
  transformers:
  - labels.yaml
 diff --git a/manifests/bases/image-automation-controller/kustomization.yaml b/manifests/bases/image-automation-controller/kustomization.yaml
-index f6beff59..8b148ca9 100644
+index f6beff59..2cf838fc 100644
 --- a/manifests/bases/image-automation-controller/kustomization.yaml
 +++ b/manifests/bases/image-automation-controller/kustomization.yaml
 @@ -1,8 +1,8 @@
@@ -254,13 +92,13 @@ index f6beff59..8b148ca9 100644
  resources:
 -- https://github.com/fluxcd/image-automation-controller/releases/download/v0.36.1/image-automation-controller.crds.yaml
 -- https://github.com/fluxcd/image-automation-controller/releases/download/v0.36.1/image-automation-controller.deployment.yaml
-+- ../../../image-automation-controller/image-automation-controller.crds.yaml
-+- ../../../image-automation-controller/image-automation-controller.deployment.yaml
++- ./image-automation-controller.crds.yaml
++- ./image-automation-controller.deployment.yaml
  - account.yaml
  transformers:
  - labels.yaml
 diff --git a/manifests/bases/image-reflector-controller/kustomization.yaml b/manifests/bases/image-reflector-controller/kustomization.yaml
-index e1a30b53..b6d9d6bb 100644
+index e1a30b53..61907995 100644
 --- a/manifests/bases/image-reflector-controller/kustomization.yaml
 +++ b/manifests/bases/image-reflector-controller/kustomization.yaml
 @@ -1,8 +1,8 @@
@@ -269,13 +107,13 @@ index e1a30b53..b6d9d6bb 100644
  resources:
 -- https://github.com/fluxcd/image-reflector-controller/releases/download/v0.30.0/image-reflector-controller.crds.yaml
 -- https://github.com/fluxcd/image-reflector-controller/releases/download/v0.30.0/image-reflector-controller.deployment.yaml
-+- ../../../image-reflector-controller/image-reflector-controller.crds.yaml
-+- ../../../image-reflector-controller/image-reflector-controller.deployment.yaml
++- ./image-reflector-controller.crds.yaml
++- ./image-reflector-controller.deployment.yaml
  - account.yaml
  transformers:
  - labels.yaml
 diff --git a/manifests/bases/kustomize-controller/kustomization.yaml b/manifests/bases/kustomize-controller/kustomization.yaml
-index d831b6bd..730a44be 100644
+index d831b6bd..3fc1de02 100644
 --- a/manifests/bases/kustomize-controller/kustomization.yaml
 +++ b/manifests/bases/kustomize-controller/kustomization.yaml
 @@ -1,8 +1,8 @@
@@ -284,13 +122,13 @@ index d831b6bd..730a44be 100644
  resources:
 -- https://github.com/fluxcd/kustomize-controller/releases/download/v1.1.0/kustomize-controller.crds.yaml
 -- https://github.com/fluxcd/kustomize-controller/releases/download/v1.1.0/kustomize-controller.deployment.yaml
-+- ../../../kustomize-controller/kustomize-controller.crds.yaml
-+- ../../../kustomize-controller/kustomize-controller.deployment.yaml
++- ./kustomize-controller.crds.yaml
++- ./kustomize-controller.deployment.yaml
  - account.yaml
  transformers:
  - labels.yaml
 diff --git a/manifests/bases/notification-controller/kustomization.yaml b/manifests/bases/notification-controller/kustomization.yaml
-index 262acc6b..27213a1e 100644
+index 262acc6b..a4f49446 100644
 --- a/manifests/bases/notification-controller/kustomization.yaml
 +++ b/manifests/bases/notification-controller/kustomization.yaml
 @@ -1,8 +1,8 @@
@@ -299,13 +137,13 @@ index 262acc6b..27213a1e 100644
  resources:
 -- https://github.com/fluxcd/notification-controller/releases/download/v1.1.0/notification-controller.crds.yaml
 -- https://github.com/fluxcd/notification-controller/releases/download/v1.1.0/notification-controller.deployment.yaml
-+- ../../../notification-controller/notification-controller.crds.yaml
-+- ../../../notification-controller/notification-controller.deployment.yaml
++- ./notification-controller.crds.yaml
++- ./notification-controller.deployment.yaml
  - account.yaml
  transformers:
  - labels.yaml
 diff --git a/manifests/bases/source-controller/kustomization.yaml b/manifests/bases/source-controller/kustomization.yaml
-index 67d4566a..f5b4ff4a 100644
+index 67d4566a..40b85ae8 100644
 --- a/manifests/bases/source-controller/kustomization.yaml
 +++ b/manifests/bases/source-controller/kustomization.yaml
 @@ -1,8 +1,8 @@
@@ -314,13 +152,13 @@ index 67d4566a..f5b4ff4a 100644
  resources:
 -- https://github.com/fluxcd/source-controller/releases/download/v1.1.1/source-controller.crds.yaml
 -- https://github.com/fluxcd/source-controller/releases/download/v1.1.1/source-controller.deployment.yaml
-+- ../../../source-controller/source-controller.crds.yaml
-+- ../../../source-controller/source-controller.deployment.yaml
++- ./source-controller.crds.yaml
++- ./source-controller.deployment.yaml
  - account.yaml
  transformers:
  - labels.yaml
 diff --git a/manifests/crds/kustomization.yaml b/manifests/crds/kustomization.yaml
-index feaa2d60..bf84e427 100644
+index feaa2d60..eea40455 100644
 --- a/manifests/crds/kustomization.yaml
 +++ b/manifests/crds/kustomization.yaml
 @@ -1,9 +1,9 @@
@@ -333,12 +171,12 @@ index feaa2d60..bf84e427 100644
 -- https://github.com/fluxcd/notification-controller/releases/download/v1.1.0/notification-controller.crds.yaml
 -- https://github.com/fluxcd/image-reflector-controller/releases/download/v0.30.0/image-reflector-controller.crds.yaml
 -- https://github.com/fluxcd/image-automation-controller/releases/download/v0.36.1/image-automation-controller.crds.yaml
-+- ../../../source-controller/source-controller.crds.yaml
-+- ../../../kustomize-controller/kustomize-controller.crds.yaml
-+- ../../../helm-controller/helm-controller.crds.yaml
-+- ../../../notification-controller/notification-controller.crds.yaml
-+- ../../../image-reflector-controller/image-reflector-controller.crds.yaml
-+- ../../../image-automation-controller/image-automation-controller.crds.yaml
++- ./source-controller.crds.yaml
++- ./kustomize-controller.crds.yaml
++- ./helm-controller.crds.yaml
++- ./notification-controller.crds.yaml
++- ./image-reflector-controller.crds.yaml
++- ./image-automation-controller.crds.yaml
 diff --git a/manifests/install/kustomization.yaml b/manifests/install/kustomization.yaml
 index edce8ca8..bfe3a8b6 100644
 --- a/manifests/install/kustomization.yaml
@@ -364,3 +202,44 @@ index edce8ca8..bfe3a8b6 100644
    - name: fluxcd/image-automation-controller
 -    newName: ghcr.io/fluxcd/image-automation-controller
 +    newName: ghcr.io/weaveworks/image-automation-controller
+diff --git a/pkg/manifestgen/install/install.go b/pkg/manifestgen/install/install.go
+index 594997c2..7ed17ecb 100644
+--- a/pkg/manifestgen/install/install.go
++++ b/pkg/manifestgen/install/install.go
+@@ -91,7 +91,7 @@ func Generate(options Options, manifestsBase string) (*manifestgen.Manifest, err
+ 
+ // GetLatestVersion calls the GitHub API and returns the latest released version.
+ func GetLatestVersion() (string, error) {
+-	ghURL := "https://api.github.com/repos/fluxcd/flux2/releases/latest"
++	ghURL := "https://api.github.com/repos/weaveworks/weave-assured-flux/releases/latest"
+ 	c := cleanhttp.DefaultClient()
+ 	c.Timeout = 15 * time.Second
+ 
+@@ -121,7 +121,7 @@ func ExistingVersion(version string) (bool, error) {
+ 		version = "v" + version
+ 	}
+ 
+-	ghURL := fmt.Sprintf("https://api.github.com/repos/fluxcd/flux2/releases/tags/%s", version)
++	ghURL := fmt.Sprintf("https://api.github.com/repos/weaveworks/weave-assured-flux/releases/tags/%s", version)
+ 	c := cleanhttp.DefaultClient()
+ 	c.Timeout = 15 * time.Second
+ 
+diff --git a/pkg/manifestgen/install/options.go b/pkg/manifestgen/install/options.go
+index a456007b..7b06d6e8 100644
+--- a/pkg/manifestgen/install/options.go
++++ b/pkg/manifestgen/install/options.go
+@@ -45,12 +45,12 @@ func MakeDefaultOptions() Options {
+ 		Components:             []string{"source-controller", "kustomize-controller", "helm-controller", "notification-controller"},
+ 		ComponentsExtra:        []string{"image-reflector-controller", "image-automation-controller"},
+ 		EventsAddr:             "",
+-		Registry:               "ghcr.io/fluxcd",
++		Registry:               "ghcr.io/weaveworks",
+ 		ImagePullSecret:        "",
+ 		WatchAllNamespaces:     true,
+ 		NetworkPolicy:          true,
+ 		LogLevel:               "info",
+-		BaseURL:                "https://github.com/fluxcd/flux2/releases",
++		BaseURL:                "https://github.com/weaveworks/weave-assured-flux/releases",
+ 		NotificationController: "notification-controller",
+ 		ManifestFile:           "gotk-components.yaml",
+ 		Timeout:                time.Minute,

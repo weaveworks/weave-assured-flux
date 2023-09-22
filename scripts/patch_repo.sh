@@ -23,12 +23,12 @@ function patch() {
     local file=$1
     local lines=0
 
-    # check that series file exists and has more than 2 lines
+    # check that series file exists and has more than one line
     if [ -f "$file" ]; then
         lines=$(cat "$file" | wc -l)
-        if [ "$lines" gt 2 ]; then
+        if [ "$lines" -gt 1 ]; then
             stg init
-            stg import -t --series file
+            stg import -t --series $file
             stg_version_output=$(stg --version | grep -i stacked | head -n 1)
             if [ "$stg_version_output" == "Stacked Git 2.2.2" ]; then
             	# for stg 2.2.2
@@ -48,6 +48,9 @@ p "Cloning $1 into $2 with tag $3 ..."
 clone $1 $2 $3
 p "Successfully cloned $1 into $2 with tag $3"
 cd $2
+
+# create a new branch for the patch
+git switch -c $3 >/dev/null
 
 p "Patching repo with ../patches-flux/$2/series ..."
 patch ../patches-flux/$2/series

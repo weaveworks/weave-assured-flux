@@ -1,8 +1,9 @@
-project_name: weave-assured-flux
+project_name: flux
 builds:
   - <<: &build_defaults
       binary: flux
-      main: ./flux2/cmd/flux
+      main: ./cmd/flux
+      dir: ./flux2
       ldflags:
         - -s -w -X main.VERSION={{ .Version }}
       env:
@@ -53,7 +54,6 @@ release:
     - glob: output/crd-schemas.tar.gz
     - glob: output/manifests.tar.gz
     - glob: output/install.yaml
-  prerelease: "auto"
 
 changelog:
   skip: true
@@ -79,7 +79,7 @@ signs:
 dockers:
 - image_templates:
     - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-amd64'
-  dockerfile: Dockerfile
+  dockerfile: ./flux2/Dockerfile
   use: buildx
   goos: linux
   goarch: amd64
@@ -94,7 +94,7 @@ dockers:
    - "--platform=linux/amd64"
 - image_templates:
     - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-arm64'
-  dockerfile: Dockerfile
+  dockerfile: ./flux2/Dockerfile
   use: buildx
   goos: linux
   goarch: arm64
@@ -109,7 +109,7 @@ dockers:
     - "--platform=linux/arm64"
 - image_templates:
     - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-arm'
-  dockerfile: Dockerfile
+  dockerfile: ./flux2/Dockerfile
   use: buildx
   goos: linux
   goarch: arm
