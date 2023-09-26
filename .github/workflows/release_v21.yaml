@@ -3,12 +3,7 @@ name: release_v21
 on:
   push:
     tags:
-      - '*'
-    paths:
-      - patches-flux-v2.1/**
-      - VERSION_21
-      - .github/workflows/release_v21.yaml
-      - .github/workflows/controller_release.yaml
+      - v2.1.*
 
 jobs:
   release-source-controller:
