@@ -287,6 +287,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+          BUILD_VERSION: ${{ steps.patch.outputs.version }}
       - name: Generate SLSA metadata
         id: slsa
         env:
@@ -336,11 +337,6 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
       - name: Setup Flux CLI
         uses: ./flux2/action/
-      - name: Prepare
-        id: prep
-        run: |
-          VERSION=$(flux version --client | awk '{ print $NF }')
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
       - name: Login to GHCR
         uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
         with:
@@ -355,7 +351,7 @@ jobs:
           --export > ./ghcr.io/flux-system/gotk-components.yaml
           
           cd ./ghcr.io && flux push artifact \
-          oci://ghcr.io/weaveworks/flux-manifests:${{ steps.prep.outputs.version }} \
+          oci://ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }} \
           --path="./flux-system" \
           --source=${{ github.repositoryUrl }} \
           --revision="${{ github.ref_name }}@sha1:${{ github.sha }}"
@@ -364,10 +360,10 @@ jobs:
         env:
           COSIGN_EXPERIMENTAL: 1
         run: |
-          cosign sign --yes ghcr.io/weaveworks/flux-manifests:${{ steps.prep.outputs.version }}
+          cosign sign --yes ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }}
       - name: Tag manifests
         run: |
-          flux tag artifact oci://ghcr.io/weaveworks/flux-manifests:${{ steps.prep.outputs.version }} \
+          flux tag artifact oci://ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }} \
           --tag latest
 
   release-provenance:

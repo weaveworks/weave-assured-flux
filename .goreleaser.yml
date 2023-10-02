@@ -5,7 +5,7 @@ builds:
       main: ./cmd/flux
       dir: ./flux2
       ldflags:
-        - -s -w -X main.VERSION={{ .Version }}
+        - -s -w -X main.VERSION={{ .Env.BUILD_VERSION }}
       env:
         - CGO_ENABLED=0
     id: linux
@@ -78,7 +78,7 @@ signs:
     output: true
 dockers:
 - image_templates:
-    - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-amd64'
+    - 'ghcr.io/weaveworks/flux-cli:{{ .Env.BUILD_VERSION }}-amd64'
   dockerfile: ./flux2/Dockerfile
   use: buildx
   goos: linux
@@ -93,7 +93,7 @@ dockers:
    - "--label=org.opencontainers.image.source={{ .GitURL }}"
    - "--platform=linux/amd64"
 - image_templates:
-    - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-arm64'
+    - 'ghcr.io/weaveworks/flux-cli:{{ .Env.BUILD_VERSION }}-arm64'
   dockerfile: ./flux2/Dockerfile
   use: buildx
   goos: linux
@@ -108,7 +108,7 @@ dockers:
     - "--label=org.opencontainers.image.source={{ .GitURL }}"
     - "--platform=linux/arm64"
 - image_templates:
-    - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-arm'
+    - 'ghcr.io/weaveworks/flux-cli:{{ .Env.BUILD_VERSION }}-arm'
   dockerfile: ./flux2/Dockerfile
   use: buildx
   goos: linux
@@ -124,7 +124,7 @@ dockers:
     - "--label=org.opencontainers.image.source={{ .GitURL }}"
     - "--platform=linux/arm/v7"
 docker_manifests:
-- name_template: 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}'
+- name_template: 'ghcr.io/weaveworks/flux-cli:{{ .Env.BUILD_VERSION }}'
   image_templates:
     - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-amd64'
     - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-arm64'
