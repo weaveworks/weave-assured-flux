@@ -288,6 +288,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
           BUILD_VERSION: ${{ steps.patch.outputs.version }}
+          BUILD_VERSION_RAW: echo ${{ steps.patch.outputs.version }} | cut -c2-
       - name: Generate SLSA metadata
         id: slsa
         env:
