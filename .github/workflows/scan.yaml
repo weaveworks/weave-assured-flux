@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  scan-trivy:
+  scan-images:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -64,7 +64,7 @@ jobs:
           echo "kc=${KUSTOMIZE_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
           echo "sc=${SOURCE_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
           echo "flux2=${FLUX2_VERSION}" >> $GITHUB_OUTPUT
-      - name: Scan source-controller image
+      - name: Scan source-controller image Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ghcr.io/weaveworks/source-controller:${{ steps.version.outputs.sc }}'
@@ -73,7 +73,14 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-      - name: Scan kustomize-controller image
+      - name: Scan source-controller image Docker Scout
+        uses: docker/scout-action@914f29b95fa18690ce41fdee98cf892d78f8c5c0 # v1.0.8
+        with:
+          command: cves
+          image: 'ghcr.io/weaveworks/source-controller:${{ steps.version.outputs.sc }}'
+          only-severities: critical,high
+          exit-code: true
+      - name: Scan kustomize-controller image Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ghcr.io/weaveworks/kustomize-controller:${{ steps.version.outputs.kc }}'
@@ -82,7 +89,14 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-      - name: Scan helm-controller image
+      - name: Scan kustomize-controller image Docker Scout
+        uses: docker/scout-action@914f29b95fa18690ce41fdee98cf892d78f8c5c0 # v1.0.8
+        with:
+          command: cves
+          image: 'ghcr.io/weaveworks/kustomize-controller:${{ steps.version.outputs.kc }}'
+          only-severities: critical,high
+          exit-code: true
+      - name: Scan helm-controller image Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ghcr.io/weaveworks/helm-controller:${{ steps.version.outputs.hc }}'
@@ -91,7 +105,14 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-      - name: Scan notification-controller image
+      - name: Scan helm-controller image Docker Scout
+        uses: docker/scout-action@914f29b95fa18690ce41fdee98cf892d78f8c5c0 # v1.0.8
+        with:
+          command: cves
+          image: 'ghcr.io/weaveworks/helm-controller:${{ steps.version.outputs.hc }}'
+          only-severities: critical,high
+          exit-code: true
+      - name: Scan notification-controller image Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ghcr.io/weaveworks/notification-controller:${{ steps.version.outputs.nc }}'
@@ -100,7 +121,14 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-      - name: Scan image-reflector-controller image
+      - name: Scan notification-controller image Docker Scout
+        uses: docker/scout-action@914f29b95fa18690ce41fdee98cf892d78f8c5c0 # v1.0.8
+        with:
+          command: cves
+          image: 'ghcr.io/weaveworks/notification-controller:${{ steps.version.outputs.nc }}'
+          only-severities: critical,high
+          exit-code: true
+      - name: Scan image-reflector-controller image Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ghcr.io/weaveworks/image-reflector-controller:${{ steps.version.outputs.irc }}'
@@ -109,7 +137,14 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-      - name: Scan image-automation-controller image
+      - name: Scan image-reflector-controller image Docker Scout
+        uses: docker/scout-action@914f29b95fa18690ce41fdee98cf892d78f8c5c0 # v1.0.8
+        with:
+          command: cves
+          image: 'ghcr.io/weaveworks/image-reflector-controller:${{ steps.version.outputs.irc }}'
+          only-severities: critical,high
+          exit-code: true
+      - name: Scan image-automation-controller image Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ghcr.io/weaveworks/image-automation-controller:${{ steps.version.outputs.iac }}'
@@ -118,7 +153,14 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-      - name: Scan flux2 image
+      - name: Scan image-automation-controller image Docker Scout
+        uses: docker/scout-action@914f29b95fa18690ce41fdee98cf892d78f8c5c0 # v1.0.8
+        with:
+          command: cves
+          image: 'ghcr.io/weaveworks/image-automation-controller:${{ steps.version.outputs.iac }}'
+          only-severities: critical,high
+          exit-code: true
+      - name: Scan flux2 image Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'ghcr.io/weaveworks/flux-cli:${{ steps.version.outputs.flux2 }}'
@@ -127,3 +169,10 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+      - name: Scan flux2 image Docker Scout
+        uses: docker/scout-action@914f29b95fa18690ce41fdee98cf892d78f8c5c0 # v1.0.8
+        with:
+          command: cves
+          image: 'ghcr.io/weaveworks/flux-cli:${{ steps.version.outputs.flux2 }}'
+          only-severities: critical,high
+          exit-code: true
