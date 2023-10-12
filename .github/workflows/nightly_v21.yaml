@@ -25,21 +25,3 @@ jobs:
           TAG="${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}.${PATCH_NUMBER}.nightly.$(date +'%Y%m%d')"
           git tag -a $TAG -m "$TAG: nightly build"
           git push origin $TAG
-      - name: 'Clean up nightly releases'
-        uses: dev-drprasad/delete-older-releases@v0.3.2
-        with:
-          keep_latest: 5
-          delete_tags: true
-          delete_tag_pattern: nightly
-        env:
-          GITHUB_TOKEN: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
-      - name: 'Delete nightly containers older than a week'
-        uses: snok/container-retention-policy@v2
-        with:
-          image-names: flux-cli, source-controller, kustomize-controller, helm-controller, notification-controller, image-reflector-controller, image-automation-controller
-          cut-off: 1 week ago UTC
-          account-type: org
-          org-name: weaveworks
-          keep-at-least: 5
-          token: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
-          filter-tags: '*-nightly*'
