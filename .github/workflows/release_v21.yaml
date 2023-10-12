@@ -254,9 +254,9 @@ jobs:
             VERSION=${FLUX2_BASE_VERSION}-wa
           fi
           if [[ "${{ steps.nightly-tag.outputs.nightly }}" == "true" ]]; then
-            VERSION=${VERSION}-nightly.$(date +%s)
+            VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
           else
-            VERSION=${VERSION}.$(date +%s)
+            VERSION=${VERSION}.$(date +%y%m%d%H%M%S)
           fi
           bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/flux2.git" flux2 ${FLUX2_BASE_VERSION} 
           unlink patches-flux
@@ -365,9 +365,9 @@ jobs:
             VERSION=${FLUX2_BASE_VERSION}-wa
           fi
           if [[ "${{ steps.nightly-tag.outputs.nightly }}" == "true" ]]; then
-            VERSION=${VERSION}-nightly.$(date +%s)
+            VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
           else
-            VERSION=${VERSION}.$(date +%s)
+            VERSION=${VERSION}.$(date +%y%m%d%H%M%S)
           fi
           bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/flux2.git" flux2 ${FLUX2_BASE_VERSION} 
           unlink patches-flux
