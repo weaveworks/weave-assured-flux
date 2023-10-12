@@ -9,7 +9,7 @@ From: Soule BA <bah.soule@gmail.com>
  2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/config/default/kustomization.yaml b/config/default/kustomization.yaml
-index bbf5e08..145f58c 100644
+index bbf5e08..c97c88a 100644
 --- a/config/default/kustomization.yaml
 +++ b/config/default/kustomization.yaml
 @@ -2,8 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
@@ -18,13 +18,13 @@ index bbf5e08..145f58c 100644
  resources:
 -- https://github.com/fluxcd/source-controller/releases/download/v1.1.1/source-controller.crds.yaml
 -- https://github.com/fluxcd/source-controller/releases/download/v1.1.1/source-controller.deployment.yaml
-+- https://github.com/weaveworks/weave-assured-flux/releases/download/v2.1.1-wa/source-controller.crds.yaml
-+- https://github.com/weaveworks/weave-assured-flux/releases/download/v2.1.1-wa/source-controller.deployment.yaml
++- https://github.com/weaveworks/weave-assured-flux/releases/download/v2.1.2-wa/source-controller.crds.yaml
++- https://github.com/weaveworks/weave-assured-flux/releases/download/v2.1.2-wa/source-controller.deployment.yaml
  - ../crd
  - ../rbac
  - ../manager
 diff --git a/config/manager/kustomization.yaml b/config/manager/kustomization.yaml
-index 94a388e..a09bd62 100644
+index e96a037..3413fd2 100644
 --- a/config/manager/kustomization.yaml
 +++ b/config/manager/kustomization.yaml
 @@ -4,5 +4,5 @@ resources:
@@ -33,4 +33,4 @@ index 94a388e..a09bd62 100644
    - name: fluxcd/helm-controller
 -    newName: fluxcd/helm-controller
 +    newName: ghcr.io/weaveworks/helm-controller
-     newTag: v0.36.1
+     newTag: v0.36.2

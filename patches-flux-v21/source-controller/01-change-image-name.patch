@@ -8,7 +8,7 @@ From: Soule BA <soule@weave.works>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/config/manager/kustomization.yaml b/config/manager/kustomization.yaml
-index e779e04..5225328 100644
+index e0726d6..c9597a6 100644
 --- a/config/manager/kustomization.yaml
 +++ b/config/manager/kustomization.yaml
 @@ -5,5 +5,5 @@ resources:
@@ -17,4 +17,4 @@ index e779e04..5225328 100644
  - name: fluxcd/source-controller
 -  newName: fluxcd/source-controller
 +  newName: ghcr.io/weaveworks/source-controller
-   newTag: v1.1.1
+   newTag: v1.1.2

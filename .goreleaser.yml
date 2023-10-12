@@ -76,6 +76,21 @@ signs:
       - '${artifact}'
     artifacts: checksum
     output: true
+brews:
+  - name: flux
+    tap:
+      owner: weaveworks
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    folder: Formula
+    #homepage: "https://fluxcd.io/"
+    description: "Flux CLI"
+    install: |
+      bin.install "flux"
+
+      generate_completions_from_executable(bin/"flux", "completion")
+    test: |
+      system "#{bin}/flux --version"
 dockers:
 - image_templates:
     - 'ghcr.io/weaveworks/flux-cli:{{ .Env.BUILD_VERSION }}-amd64'

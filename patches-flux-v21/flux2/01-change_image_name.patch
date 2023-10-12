@@ -68,15 +68,15 @@ index 53712021..6bb96c4e 100644
  		"list of components, accepts comma-separated values")
  	installCmd.Flags().StringSliceVar(&installArgs.extraComponents, "components-extra", nil,
 diff --git a/manifests/bases/helm-controller/kustomization.yaml b/manifests/bases/helm-controller/kustomization.yaml
-index 2037bdfe..57136941 100644
+index a55c9340..57136941 100644
 --- a/manifests/bases/helm-controller/kustomization.yaml
 +++ b/manifests/bases/helm-controller/kustomization.yaml
 @@ -1,8 +1,8 @@
  apiVersion: kustomize.config.k8s.io/v1beta1
  kind: Kustomization
  resources:
--- https://github.com/fluxcd/helm-controller/releases/download/v0.36.1/helm-controller.crds.yaml
--- https://github.com/fluxcd/helm-controller/releases/download/v0.36.1/helm-controller.deployment.yaml
+-- https://github.com/fluxcd/helm-controller/releases/download/v0.36.2/helm-controller.crds.yaml
+-- https://github.com/fluxcd/helm-controller/releases/download/v0.36.2/helm-controller.deployment.yaml
 +- ./helm-controller.crds.yaml
 +- ./helm-controller.deployment.yaml
  - account.yaml
@@ -113,15 +113,15 @@ index e1a30b53..61907995 100644
  transformers:
  - labels.yaml
 diff --git a/manifests/bases/kustomize-controller/kustomization.yaml b/manifests/bases/kustomize-controller/kustomization.yaml
-index d831b6bd..3fc1de02 100644
+index cef82f1e..3fc1de02 100644
 --- a/manifests/bases/kustomize-controller/kustomization.yaml
 +++ b/manifests/bases/kustomize-controller/kustomization.yaml
 @@ -1,8 +1,8 @@
  apiVersion: kustomize.config.k8s.io/v1beta1
  kind: Kustomization
  resources:
--- https://github.com/fluxcd/kustomize-controller/releases/download/v1.1.0/kustomize-controller.crds.yaml
--- https://github.com/fluxcd/kustomize-controller/releases/download/v1.1.0/kustomize-controller.deployment.yaml
+-- https://github.com/fluxcd/kustomize-controller/releases/download/v1.1.1/kustomize-controller.crds.yaml
+-- https://github.com/fluxcd/kustomize-controller/releases/download/v1.1.1/kustomize-controller.deployment.yaml
 +- ./kustomize-controller.crds.yaml
 +- ./kustomize-controller.deployment.yaml
  - account.yaml
@@ -143,31 +143,31 @@ index 262acc6b..a4f49446 100644
  transformers:
  - labels.yaml
 diff --git a/manifests/bases/source-controller/kustomization.yaml b/manifests/bases/source-controller/kustomization.yaml
-index 67d4566a..40b85ae8 100644
+index 7b3d3fec..40b85ae8 100644
 --- a/manifests/bases/source-controller/kustomization.yaml
 +++ b/manifests/bases/source-controller/kustomization.yaml
 @@ -1,8 +1,8 @@
  apiVersion: kustomize.config.k8s.io/v1beta1
  kind: Kustomization
  resources:
--- https://github.com/fluxcd/source-controller/releases/download/v1.1.1/source-controller.crds.yaml
--- https://github.com/fluxcd/source-controller/releases/download/v1.1.1/source-controller.deployment.yaml
+-- https://github.com/fluxcd/source-controller/releases/download/v1.1.2/source-controller.crds.yaml
+-- https://github.com/fluxcd/source-controller/releases/download/v1.1.2/source-controller.deployment.yaml
 +- ./source-controller.crds.yaml
 +- ./source-controller.deployment.yaml
  - account.yaml
  transformers:
  - labels.yaml
 diff --git a/manifests/crds/kustomization.yaml b/manifests/crds/kustomization.yaml
-index feaa2d60..eea40455 100644
+index 920f6fec..eea40455 100644
 --- a/manifests/crds/kustomization.yaml
 +++ b/manifests/crds/kustomization.yaml
 @@ -1,9 +1,9 @@
  apiVersion: kustomize.config.k8s.io/v1beta1
  kind: Kustomization
  resources:
--- https://github.com/fluxcd/source-controller/releases/download/v1.1.1/source-controller.crds.yaml
--- https://github.com/fluxcd/kustomize-controller/releases/download/v1.1.0/kustomize-controller.crds.yaml
--- https://github.com/fluxcd/helm-controller/releases/download/v0.36.1/helm-controller.crds.yaml
+-- https://github.com/fluxcd/source-controller/releases/download/v1.1.2/source-controller.crds.yaml
+-- https://github.com/fluxcd/kustomize-controller/releases/download/v1.1.1/kustomize-controller.crds.yaml
+-- https://github.com/fluxcd/helm-controller/releases/download/v0.36.2/helm-controller.crds.yaml
 -- https://github.com/fluxcd/notification-controller/releases/download/v1.1.0/notification-controller.crds.yaml
 -- https://github.com/fluxcd/image-reflector-controller/releases/download/v0.30.0/image-reflector-controller.crds.yaml
 -- https://github.com/fluxcd/image-automation-controller/releases/download/v0.36.1/image-automation-controller.crds.yaml
