@@ -1,2 +1,3 @@
 # This series applies on Git commit 2230328db8f6ee6d658a3f548d5a80e9b3a83233
 01-change_image_name.patch
+02-update_x_net.patch

@@ -12,16 +12,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Push nightly tag
+        shell: bash
         run: |
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global user.name "Soule BA"
+          git config --global user.email "soule@weave.works"
 
           # Get the latest release tag
+          git fetch 'refs/tags/*:refs/tags/*'
           DESCRIBE=$(git tag -l --sort=-v:refname | grep -v nightly | head -n 1)
           MAJOR_VERSION=$(echo $DESCRIBE | awk '{split($0,a,"."); print a[1]}')
           MINOR_VERSION=$(echo $DESCRIBE | awk '{split($0,a,"."); print a[2]}')
           PATCH_VERSION=$(echo $DESCRIBE | awk '{split($0,a,"."); print a[3]}')
           PATCH_NUMBER=$(echo $DESCRIBE | awk '{split($0,a,"."); print a[4]}')
-          TAG="${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}.${PATCH_NUMBER}.nightly.$(date +'%Y%m%d')"
+          TAG="${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}
+          if [[ "$PATCH_NUMBER" =~ ^[0-9]+$ ]]; then
+            TAG="${TAG}.${PATCH_NUMBER}"
+          fi
+          TAG="${TAG}.nightly.$(date +'%Y%m%d')"
           git tag -a $TAG -m "$TAG: nightly build"
           git push origin $TAG

@@ -7,19 +7,21 @@ on:
 
 jobs:
   nightly-tag:
+    outputs:
+      nightly: ${{ steps.version.outputs.nightly }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: version
         id: version
+        shell: bash
         run: |
-          TAG=$(echo ${{  github.ref_name }})
-          NIGHTLY=false
-          if [[ $TAG == "*.nightly*" ]]; then
-            NIGHTLY=true
+          if [[ "{{  github.ref_name }}" == "*.nightly*" ]]; then
+            echo "nightly=true" >> $GITHUB_OUTPUT
+          else
+            echo "nightly=false" >> $GITHUB_OUTPUT
           fi
-          echo "nightly=${NIGHTLY}" >> $GITHUB_OUTPUT
+          exit 0
+
   release-source-controller:
     needs: [nightly-tag]
     permissions:
@@ -30,7 +32,77 @@ jobs:
     with:
       controller: source-controller
       version: v21
-      nightly: ${{ steps.nightly-tag.outputs.nightly }}
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-kustomize-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: kustomize-controller
+      version: v21
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-helm-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: helm-controller
+      version: v21
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-image-reflector-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: image-reflector-controller
+      version: v21
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-image-automation-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: image-automation-controller
+      version: v21
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-notification-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: notification-controller
+      version: v21
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
     secrets:
       ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
@@ -49,20 +121,6 @@ jobs:
       private-repository: true
     secrets:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
-  
-  release-kustomize-controller:
-    needs: [nightly-tag]
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-    uses: ./.github/workflows/controller_release.yaml
-    with:
-      controller: kustomize-controller
-      version: v21
-      nightly: ${{ steps.nightly-tag.outputs.nightly }}
-    secrets:
-      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
   kc-ghcr-provenance:
     needs: [release-kustomize-controller]
@@ -80,20 +138,6 @@ jobs:
     secrets:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
-  release-helm-controller:
-    needs: [nightly-tag]
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-    uses: ./.github/workflows/controller_release.yaml
-    with:
-      controller: helm-controller
-      version: v21
-      nightly: ${{ steps.nightly-tag.outputs.nightly }}
-    secrets:
-      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
-
   hc-ghcr-provenance:
     needs: [release-helm-controller]
     permissions:
@@ -109,20 +153,6 @@ jobs:
       private-repository: true
     secrets:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
-  
-  release-image-reflector-controller:
-    needs: [nightly-tag]
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-    uses: ./.github/workflows/controller_release.yaml
-    with:
-      controller: image-reflector-controller
-      version: v21
-      nightly: ${{ steps.nightly-tag.outputs.nightly }}
-    secrets:
-      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
   irc-ghcr-provenance:
     needs: [release-image-reflector-controller]
@@ -140,20 +170,6 @@ jobs:
     secrets:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
-  release-image-automation-controller:
-    needs: [nightly-tag]
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-    uses: ./.github/workflows/controller_release.yaml
-    with:
-      controller: image-automation-controller
-      version: v21
-      nightly: ${{ steps.nightly-tag.outputs.nightly }}
-    secrets:
-      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
-
   iac-ghcr-provenance:
     needs: [release-image-automation-controller]
     permissions:
@@ -169,20 +185,6 @@ jobs:
       private-repository: true
     secrets:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
-
-  release-notification-controller:
-    needs: [nightly-tag]
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-    uses: ./.github/workflows/controller_release.yaml
-    with:
-      controller: notification-controller
-      version: v21
-      nightly: ${{ steps.nightly-tag.outputs.nightly }}
-    secrets:
-      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
   nc-ghcr-provenance:
     needs: [release-notification-controller]
@@ -253,14 +255,16 @@ jobs:
           else
             VERSION=${FLUX2_BASE_VERSION}-wa
           fi
-          if [[ "${{ steps.nightly-tag.outputs.nightly }}" == "true" ]]; then
+          if [[ "${{ needs.nightly-tag.outputs.nightly }}" == "true" ]]; then
             VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
           else
             VERSION=${VERSION}.$(date +%y%m%d%H%M%S)
           fi
           bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/flux2.git" flux2 ${FLUX2_BASE_VERSION} 
           unlink patches-flux
+          RAW_VERSION=$(echo $VERSION | cut -c2-)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "raw_version=${RAW_VERSION}" >> $GITHUB_OUTPUT
       - name: Download all controllers release artifacts
         uses: actions/download-artifact@v3
         with:
@@ -314,12 +318,12 @@ jobs:
         uses: goreleaser/goreleaser-action@7ec5c2b0c6cdda6e8bbb49444bc797dd33d74dd8 # v5.0.0
         with:
           version: latest
-          args: release --clean --skip-validate
+          args: release --clean --skip=validate
         env:
           GITHUB_TOKEN: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
           BUILD_VERSION: ${{ steps.patch.outputs.version }}
-          BUILD_VERSION_RAW: echo ${{ steps.patch.outputs.version }} | cut -c2-
+          BUILD_VERSION_RAW: ${{ steps.patch.outputs.raw_version }}
       - name: Generate SLSA metadata
         id: slsa
         env:
@@ -330,7 +334,7 @@ jobs:
           hashes=$(echo -E $ARTIFACTS | jq --raw-output '.[] | {name, "digest": (.extra.Digest // .extra.Checksum)} | select(.digest) | {digest} + {name} | join("  ") | sub("^sha256:";"")' | base64 -w0)
           echo "hashes=$hashes" >> $GITHUB_OUTPUT
           
-          image_url=ghcr.io/weaveworks/flux-cli:$GITHUB_REF_NAME
+          image_url=ghcr.io/weaveworks/flux-cli:${{ steps.patch.outputs.version }}
           echo "image_url=$image_url" >> $GITHUB_OUTPUT
           
           image_digest=$(docker buildx imagetools inspect ${image_url}  --format '{{json .}}' | jq -r .manifest.digest)
@@ -351,8 +355,8 @@ jobs:
         shell: bash
         run: |
           sudo apt-get install -y stgit
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global user.name "Soule BA"
+          git config --global user.email "soule@weave.works"
       - name: Clone and patch repo
         id: patch
         run: |
@@ -364,7 +368,7 @@ jobs:
           else
             VERSION=${FLUX2_BASE_VERSION}-wa
           fi
-          if [[ "${{ steps.nightly-tag.outputs.nightly }}" == "true" ]]; then
+          if [[ "${{ needs.nightly-tag.outputs.nightly }}" == "true" ]]; then
             VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
           else
             VERSION=${VERSION}.$(date +%y%m%d%H%M%S)

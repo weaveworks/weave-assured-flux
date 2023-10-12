@@ -126,9 +126,9 @@ dockers:
 docker_manifests:
 - name_template: 'ghcr.io/weaveworks/flux-cli:{{ .Env.BUILD_VERSION }}'
   image_templates:
-    - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-amd64'
-    - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-arm64'
-    - 'ghcr.io/weaveworks/flux-cli:{{ .Tag }}-arm'
+    - 'ghcr.io/weaveworks/flux-cli:{{ .Env.BUILD_VERSION }}-amd64'
+    - 'ghcr.io/weaveworks/flux-cli:{{ .Env.BUILD_VERSION }}-arm64'
+    - 'ghcr.io/weaveworks/flux-cli:{{ .Env.BUILD_VERSION }}-arm'
 docker_signs:
   - cmd: cosign
     env:

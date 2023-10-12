@@ -11,7 +11,7 @@ on:
         type: string
       nightly:
         required: false
-        type: boolean
+        type: string
     secrets:
       ghcrToken:
         required: true
@@ -39,8 +39,8 @@ jobs:
         shell: bash
         run: |
           sudo apt-get install -y stgit
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global user.name "Soule BA"
+          git config --global user.email "soule@weave.works"
       - name: Setup QEMU
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
       - name: Setup Docker Buildx
