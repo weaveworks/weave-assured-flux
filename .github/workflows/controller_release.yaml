@@ -9,6 +9,9 @@ on:
       version:
         required: true
         type: string
+      nightly:
+        required: false
+        type: boolean
     secrets:
       ghcrToken:
         required: true
@@ -36,8 +39,8 @@ jobs:
         shell: bash
         run: |
           sudo apt-get install -y stgit
-          git config --global user.name "Soule BA"
-          git config --global user.email "soule@weave.works"
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
       - name: Setup QEMU
         uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
       - name: Setup Docker Buildx
@@ -61,6 +64,11 @@ jobs:
             VERSION=${BASE_VERSION}-${SUFFIX_VERSION}
           else
             VERSION=${BASE_VERSION}-wa
+          fi
+          if [[ "${{ inputs.nightly }}" == "true" ]]; then
+            VERSION=${VERSION}-nightly.$(date +%s)
+          else
+            VERSION=${VERSION}.$(date +%s)
           fi
           bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/${{ inputs.controller }}.git" ${{ inputs.controller }} ${BASE_VERSION} 
           unlink patches-flux

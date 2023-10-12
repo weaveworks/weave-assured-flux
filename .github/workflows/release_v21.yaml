@@ -6,7 +6,22 @@ on:
       - v2.1.*
 
 jobs:
+  nightly-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: version
+        id: version
+        run: |
+          TAG=$(echo ${{  github.ref_name }})
+          NIGHTLY=false
+          if [[ $TAG == "*.nightly*" ]]; then
+            NIGHTLY=true
+          fi
+          echo "nightly=${NIGHTLY}" >> $GITHUB_OUTPUT
   release-source-controller:
+    needs: [nightly-tag]
     permissions:
       contents: read
       id-token: write
@@ -15,6 +30,7 @@ jobs:
     with:
       controller: source-controller
       version: v21
+      nightly: ${{ steps.nightly-tag.outputs.nightly }}
     secrets:
       ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
@@ -35,6 +51,7 @@ jobs:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
   
   release-kustomize-controller:
+    needs: [nightly-tag]
     permissions:
       contents: read
       id-token: write
@@ -43,6 +60,7 @@ jobs:
     with:
       controller: kustomize-controller
       version: v21
+      nightly: ${{ steps.nightly-tag.outputs.nightly }}
     secrets:
       ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
@@ -63,6 +81,7 @@ jobs:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
   release-helm-controller:
+    needs: [nightly-tag]
     permissions:
       contents: read
       id-token: write
@@ -71,6 +90,7 @@ jobs:
     with:
       controller: helm-controller
       version: v21
+      nightly: ${{ steps.nightly-tag.outputs.nightly }}
     secrets:
       ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
@@ -91,6 +111,7 @@ jobs:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
   
   release-image-reflector-controller:
+    needs: [nightly-tag]
     permissions:
       contents: read
       id-token: write
@@ -99,6 +120,7 @@ jobs:
     with:
       controller: image-reflector-controller
       version: v21
+      nightly: ${{ steps.nightly-tag.outputs.nightly }}
     secrets:
       ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
@@ -119,6 +141,7 @@ jobs:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
   release-image-automation-controller:
+    needs: [nightly-tag]
     permissions:
       contents: read
       id-token: write
@@ -127,6 +150,7 @@ jobs:
     with:
       controller: image-automation-controller
       version: v21
+      nightly: ${{ steps.nightly-tag.outputs.nightly }}
     secrets:
       ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
@@ -147,6 +171,7 @@ jobs:
       registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
   release-notification-controller:
+    needs: [nightly-tag]
     permissions:
       contents: read
       id-token: write
@@ -155,6 +180,7 @@ jobs:
     with:
       controller: notification-controller
       version: v21
+      nightly: ${{ steps.nightly-tag.outputs.nightly }}
     secrets:
       ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
 
@@ -226,6 +252,11 @@ jobs:
             VERSION=${FLUX2_BASE_VERSION}-${FLUX2_SUFFIX_VERSION}
           else
             VERSION=${FLUX2_BASE_VERSION}-wa
+          fi
+          if [[ "${{ steps.nightly-tag.outputs.nightly }}" == "true" ]]; then
+            VERSION=${VERSION}-nightly.$(date +%s)
+          else
+            VERSION=${VERSION}.$(date +%s)
           fi
           bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/flux2.git" flux2 ${FLUX2_BASE_VERSION} 
           unlink patches-flux
@@ -320,8 +351,8 @@ jobs:
         shell: bash
         run: |
           sudo apt-get install -y stgit
-          git config --global user.name "Soule BA"
-          git config --global user.email "soule@weave.works"
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
       - name: Clone and patch repo
         id: patch
         run: |
@@ -332,6 +363,11 @@ jobs:
             VERSION=${FLUX2_BASE_VERSION}-${FLUX2_SUFFIX_VERSION}
           else
             VERSION=${FLUX2_BASE_VERSION}-wa
+          fi
+          if [[ "${{ steps.nightly-tag.outputs.nightly }}" == "true" ]]; then
+            VERSION=${VERSION}-nightly.$(date +%s)
+          else
+            VERSION=${VERSION}.$(date +%s)
           fi
           bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/flux2.git" flux2 ${FLUX2_BASE_VERSION} 
           unlink patches-flux
