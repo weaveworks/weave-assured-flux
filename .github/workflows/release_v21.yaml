@@ -15,7 +15,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          if [[ "{{  github.ref_name }}" == "*.nightly*" ]]; then
+          if [[ "${{  github.ref }}" == refs/tags/v*.nightly* ]]; then
             echo "nightly=true" >> $GITHUB_OUTPUT
           else
             echo "nightly=false" >> $GITHUB_OUTPUT
@@ -212,12 +212,14 @@ jobs:
       contents: write # needed to write releases
       id-token: write # needed for keyless signing
       packages: write # needed for ghcr access
-    needs: [sc-ghcr-provenance, kc-ghcr-provenance, hc-ghcr-provenance, irc-ghcr-provenance, iac-ghcr-provenance, nc-ghcr-provenance]
+    needs: [nightly-tag,sc-ghcr-provenance, kc-ghcr-provenance, hc-ghcr-provenance, irc-ghcr-provenance, iac-ghcr-provenance, nc-ghcr-provenance]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Kustomize
         uses: fluxcd/pkg/actions/kustomize@main
+      - name: Setup yq
+        uses: fluxcd/pkg/actions/yq@main
       - name: install stgit
         shell: bash
         run: |
@@ -257,6 +259,8 @@ jobs:
           fi
           if [[ "${{ needs.nightly-tag.outputs.nightly }}" == "true" ]]; then
             VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
+            # also patch .goreleaser.yml
+            yq -i '.release.make_latest = false' .goreleaser.yml
           else
             VERSION=${VERSION}.$(date +%y%m%d%H%M%S)
           fi
@@ -342,7 +346,7 @@ jobs:
 
   release-flux-manifests:
     runs-on: ubuntu-latest
-    needs: release-flux-cli
+    needs: [nightly-tag, release-flux-cli]
     permissions:
       id-token: write
       packages: write

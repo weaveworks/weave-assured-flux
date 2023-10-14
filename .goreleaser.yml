@@ -50,14 +50,13 @@ sboms:
     documents:
       - "{{ .ProjectName }}_{{ .Version }}_sbom.spdx.json"
 release:
+  make_latest: true
   extra_files:
     - glob: output/crd-schemas.tar.gz
     - glob: output/manifests.tar.gz
     - glob: output/install.yaml
-
 changelog:
   skip: true
-
 checksum:
   extra_files:
     - glob: output/crd-schemas.tar.gz
