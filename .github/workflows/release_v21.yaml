@@ -15,7 +15,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          if [[ "{{  github.ref_name }}" == "*.nightly*" ]]; then
+          if [[ "${{  github.ref }}" == refs/tags/v*.nightly* ]]; then
             echo "nightly=true" >> $GITHUB_OUTPUT
           else
             echo "nightly=false" >> $GITHUB_OUTPUT
@@ -250,6 +250,9 @@ jobs:
           ln -s patches-flux-v21 patches-flux
           rm -rf flux2 || true
           source ./patches-flux/VERSION
+          # set LATEST_RELEASE to true by default
+          # it will be set to false if the release is a nightly build
+          LATEST_RELEASE=true
           if [[ "$FLUX2_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
             VERSION=${FLUX2_BASE_VERSION}-${FLUX2_SUFFIX_VERSION}
           else
@@ -257,6 +260,7 @@ jobs:
           fi
           if [[ "${{ needs.nightly-tag.outputs.nightly }}" == "true" ]]; then
             VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
+            LATEST_RELEASE=false
           else
             VERSION=${VERSION}.$(date +%y%m%d%H%M%S)
           fi
@@ -265,6 +269,7 @@ jobs:
           RAW_VERSION=$(echo $VERSION | cut -c2-)
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "raw_version=${RAW_VERSION}" >> $GITHUB_OUTPUT
+          echo "latest_release=${LATEST_RELEASE}" >> $GITHUB_OUTPUT
       - name: Download all controllers release artifacts
         uses: actions/download-artifact@v3
         with:
@@ -324,6 +329,7 @@ jobs:
           HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
           BUILD_VERSION: ${{ steps.patch.outputs.version }}
           BUILD_VERSION_RAW: ${{ steps.patch.outputs.raw_version }}
+          LATEST_RELEASE: ${{ steps.patch.outputs.latest_release }}
       - name: Generate SLSA metadata
         id: slsa
         env:

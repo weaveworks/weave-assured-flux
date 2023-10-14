@@ -50,6 +50,7 @@ sboms:
     documents:
       - "{{ .ProjectName }}_{{ .Version }}_sbom.spdx.json"
 release:
+  make_latest: "{{ .Env.LATEST_RELEASE }}"
   extra_files:
     - glob: output/crd-schemas.tar.gz
     - glob: output/manifests.tar.gz
