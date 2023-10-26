@@ -420,6 +420,10 @@ jobs:
           flux tag artifact oci://ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }} \
           --tag latest
 
+          VERSION=${GITHUB_REF/refs\/tags\//}
+          flux tag artifact oci://ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }} \
+          --tag $VERSION
+
   release-provenance:
     needs: [release-flux-cli]
     permissions:
