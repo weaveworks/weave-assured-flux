@@ -1,3 +1,4 @@
 # This series applies on Git commit 7f3d5141f96c0374e01d6e644c8b11502f2352cf
 01-change_image_name.patch
 02-update_x_net.patch
+03-update_grpc.patch
