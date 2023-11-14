@@ -424,6 +424,72 @@ jobs:
           flux tag artifact oci://ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }} \
           --tag $VERSION
 
+  save-images-digests:
+    runs-on: ubuntu-latest
+    needs: [nightly-tag, release-flux-cli, release-source-controller, release-kustomize-controller, release-helm-controller,
+      release-image-reflector-controller, release-image-automation-controller, release-notification-controller]
+    permissions:
+      id-token: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Kustomize
+        uses: fluxcd/pkg/actions/kustomize@main
+      - name: install stgit
+        shell: bash
+        run: |
+          sudo apt-get install -y stgit
+          git config --global user.name "Soule BA"
+          git config --global user.email "soule@weave.works"
+      - name: Clone and patch repo
+        id: patch
+        run: |
+          ln -s patches-flux-v21 patches-flux
+          rm -rf flux2 || true
+          source ./patches-flux/VERSION
+          if [[ "$FLUX2_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
+            VERSION=${FLUX2_BASE_VERSION}-${FLUX2_SUFFIX_VERSION}
+          else
+            VERSION=${FLUX2_BASE_VERSION}-wa
+          fi
+          if [[ "${{ needs.nightly-tag.outputs.nightly }}" == "true" ]]; then
+            VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
+          else
+            VERSION=${VERSION}.$(date +%y%m%d%H%M%S)
+          fi
+          bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/flux2.git" flux2 ${FLUX2_BASE_VERSION} 
+          unlink patches-flux
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+      - name: Login to GHCR
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
+        with:
+          registry: ghcr.io
+          username: weave-ghcr-bot
+          password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+      - name: Push manifests to GHCR
+        run: |
+          # add all images to the image_digests file
+          echo "SOURCE_CONTROLLER_IMAGE_DIGEST=${{ needs.release-source-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "KUSTOMIZE_CONTROLLER_IMAGE_DIGEST=${{ needs.release-kustomize-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "HELM_CONTROLLER_IMAGE_DIGEST=${{ needs.release-helm-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "IMAGE_REFLECTOR_CONTROLLER_IMAGE_DIGEST=${{ needs.release-image-reflector-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "IMAGE_AUTOMATION_CONTROLLER_IMAGE_DIGEST=${{ needs.release-image-automation-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "NOTIFICATION_CONTROLLER_IMAGE_DIGEST=${{ needs.release-notification-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "FLUX_CLI_IMAGE_DIGEST=${{ needs.release-flux-cli.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          
+          oras push ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} image_digests
+      - uses: sigstore/cosign-installer@1fc5bd396d372bee37d608f955b336615edf79c8 # v3.2.0
+      - name: Sign manifests
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign sign --yes ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }}
+      - name: Tag manifests
+        run: |
+          VERSION=${GITHUB_REF/refs\/tags\//}
+          oras tag artifact oci://ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} $VERSION
+
   release-provenance:
     needs: [release-flux-cli]
     permissions:
