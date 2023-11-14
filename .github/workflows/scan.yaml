@@ -3,7 +3,7 @@ name: scan
 on:
   workflow_dispatch:
   schedule:
-    - cron: '00 10 * * 3'
+    - cron: '00 12 * * 2'
 
 permissions:
   contents: read
@@ -30,51 +30,21 @@ jobs:
       - name: Get image version
         id: version
         run: |
-          ln -s patches-flux-v21 patches-flux
-          source ./patches-flux/VERSION
-          if [[ "$FLUX2_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            FLUX2_VERSION=${FLUX2_BASE_VERSION}-${FLUX2_SUFFIX_VERSION}
-          else
-            FLUX2_VERSION=${FLUX2_BASE_VERSION}-wa
+          LATEST=$(curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/weaveworks/weave-assured-flux/releases/latest | grep tag_name | cut -d '"' -f 4)
+          if [[ -z "$LATEST" ]]; then
+            echo "Unable to determine Weave Assured Flux version"
+            exit 1
           fi
-          if [[ "$SOURCE_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            SOURCE_CONTROLLER_VERSION=${SOURCE_CONTROLLER_BASE_VERSION}-${SOURCE_CONTROLLER_SUFFIX_VERSION}
-          else
-            SOURCE_CONTROLLER_VERSION=${SOURCE_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$KUSTOMIZE_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            KUSTOMIZE_CONTROLLER_VERSION=${KUSTOMIZE_CONTROLLER_BASE_VERSION}-${KUSTOMIZE_CONTROLLER_SUFFIX_VERSION}
-          else
-            KUSTOMIZE_CONTROLLER_VERSION=${KUSTOMIZE_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$HELM_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            HELM_CONTROLLER_VERSION=${HELM_CONTROLLER_BASE_VERSION}-${HELM_CONTROLLER_SUFFIX_VERSION}
-          else
-            HELM_CONTROLLER_VERSION=${HELM_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$NOTIFICATION_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            NOTIFICATION_CONTROLLER_VERSION=${NOTIFICATION_CONTROLLER_BASE_VERSION}-${NOTIFICATION_CONTROLLER_SUFFIX_VERSION}
-          else
-            NOTIFICATION_CONTROLLER_VERSION=${NOTIFICATION_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$IMAGE_REFLECTOR_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            IMAGE_REFLECTOR_CONTROLLER_VERSION=${IMAGE_REFLECTOR_CONTROLLER_BASE_VERSION}-${IMAGE_REFLECTOR_CONTROLLER_SUFFIX_VERSION}
-          else
-            IMAGE_REFLECTOR_CONTROLLER_VERSION=${IMAGE_REFLECTOR_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$IMAGE_AUTOMATION_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            IMAGE_AUTOMATION_CONTROLLER_VERSION=${IMAGE_AUTOMATION_CONTROLLER_BASE_VERSION}-${IMAGE_AUTOMATION_CONTROLLER_SUFFIX_VERSION}
-          else
-            IMAGE_AUTOMATION_CONTROLLER_VERSION=${IMAGE_AUTOMATION_CONTROLLER_BASE_VERSION}-wa
-          fi
-          unlink patches-flux
-          echo "iac=${IMAGE_AUTOMATION_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "irc=${IMAGE_REFLECTOR_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "nc=${NOTIFICATION_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "hc=${HELM_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "kc=${KUSTOMIZE_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "sc=${SOURCE_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "flux2=${FLUX2_VERSION}" >> $GITHUB_OUTPUT
+
+          oras pull ghcr.io/weaveworks/flux-images-digests:$LATEST
+          source image_digests
+          echo "sc=${SOURCE_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_ENV
+          echo "kc=${KUSTOMIZE_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_ENV
+          echo "hc=${HELM_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_ENV
+          echo "nc=${NOTIFICATION_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_ENV
+          echo "irc=${IMAGE_REFLECTOR_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_ENV
+          echo "iac=${IMAGE_AUTOMATION_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_ENV
+          echo "flux2=${FLUX_CLI_IMAGE_DIGEST}" >> $GITHUB_ENV
 
   scan-trivy:
     runs-on: ubuntu-latest
