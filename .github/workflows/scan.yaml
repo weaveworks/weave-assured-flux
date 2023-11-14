@@ -3,7 +3,7 @@ name: scan
 on:
   workflow_dispatch:
   schedule:
-    - cron: '00 10 * * 3'
+    - cron: '00 3 * * 1-5' # every weekday at 3am UTC
 
 permissions:
   contents: read
@@ -30,51 +30,21 @@ jobs:
       - name: Get image version
         id: version
         run: |
-          ln -s patches-flux-v21 patches-flux
-          source ./patches-flux/VERSION
-          if [[ "$FLUX2_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            FLUX2_VERSION=${FLUX2_BASE_VERSION}-${FLUX2_SUFFIX_VERSION}
-          else
-            FLUX2_VERSION=${FLUX2_BASE_VERSION}-wa
+          LATEST=$(curl -fsSL -H "Authorization: token ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}" https://api.github.com/repos/weaveworks/weave-assured-flux/releases/latest | grep tag_name | cut -d '"' -f 4)
+          if [[ -z "$LATEST" ]]; then
+            echo "Unable to determine Weave Assured Flux version"
+            exit 1
           fi
-          if [[ "$SOURCE_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            SOURCE_CONTROLLER_VERSION=${SOURCE_CONTROLLER_BASE_VERSION}-${SOURCE_CONTROLLER_SUFFIX_VERSION}
-          else
-            SOURCE_CONTROLLER_VERSION=${SOURCE_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$KUSTOMIZE_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            KUSTOMIZE_CONTROLLER_VERSION=${KUSTOMIZE_CONTROLLER_BASE_VERSION}-${KUSTOMIZE_CONTROLLER_SUFFIX_VERSION}
-          else
-            KUSTOMIZE_CONTROLLER_VERSION=${KUSTOMIZE_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$HELM_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            HELM_CONTROLLER_VERSION=${HELM_CONTROLLER_BASE_VERSION}-${HELM_CONTROLLER_SUFFIX_VERSION}
-          else
-            HELM_CONTROLLER_VERSION=${HELM_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$NOTIFICATION_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            NOTIFICATION_CONTROLLER_VERSION=${NOTIFICATION_CONTROLLER_BASE_VERSION}-${NOTIFICATION_CONTROLLER_SUFFIX_VERSION}
-          else
-            NOTIFICATION_CONTROLLER_VERSION=${NOTIFICATION_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$IMAGE_REFLECTOR_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            IMAGE_REFLECTOR_CONTROLLER_VERSION=${IMAGE_REFLECTOR_CONTROLLER_BASE_VERSION}-${IMAGE_REFLECTOR_CONTROLLER_SUFFIX_VERSION}
-          else
-            IMAGE_REFLECTOR_CONTROLLER_VERSION=${IMAGE_REFLECTOR_CONTROLLER_BASE_VERSION}-wa
-          fi
-          if [[ "$IMAGE_AUTOMATION_CONTROLLER_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
-            IMAGE_AUTOMATION_CONTROLLER_VERSION=${IMAGE_AUTOMATION_CONTROLLER_BASE_VERSION}-${IMAGE_AUTOMATION_CONTROLLER_SUFFIX_VERSION}
-          else
-            IMAGE_AUTOMATION_CONTROLLER_VERSION=${IMAGE_AUTOMATION_CONTROLLER_BASE_VERSION}-wa
-          fi
-          unlink patches-flux
-          echo "iac=${IMAGE_AUTOMATION_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "irc=${IMAGE_REFLECTOR_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "nc=${NOTIFICATION_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "hc=${HELM_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "kc=${KUSTOMIZE_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "sc=${SOURCE_CONTROLLER_VERSION}" >> $GITHUB_OUTPUT
-          echo "flux2=${FLUX2_VERSION}" >> $GITHUB_OUTPUT
+
+          oras pull ghcr.io/weaveworks/flux-images-digests:$LATEST
+          source image_digests
+          echo "sc=${SOURCE_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
+          echo "kc=${KUSTOMIZE_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
+          echo "hc=${HELM_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
+          echo "nc=${NOTIFICATION_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
+          echo "irc=${IMAGE_REFLECTOR_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
+          echo "iac=${IMAGE_AUTOMATION_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
+          echo "flux2=${FLUX_CLI_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
 
   scan-trivy:
     runs-on: ubuntu-latest
@@ -83,7 +53,7 @@ jobs:
       - name: Scan source-controller image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/weaveworks/source-controller:${{ needs.get-image-version.outputs.sc }}'
+          image-ref: 'ghcr.io/weaveworks/source-controller@${{ needs.get-image-version.outputs.sc }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -92,7 +62,7 @@ jobs:
       - name: Scan kustomize-controller image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/weaveworks/kustomize-controller:${{ needs.get-image-version.outputs.kc }}'
+          image-ref: 'ghcr.io/weaveworks/kustomize-controller@${{ needs.get-image-version.outputs.kc }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -101,7 +71,7 @@ jobs:
       - name: Scan helm-controller image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/weaveworks/helm-controller:${{ needs.get-image-version.outputs.hc }}'
+          image-ref: 'ghcr.io/weaveworks/helm-controller@${{ needs.get-image-version.outputs.hc }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -110,7 +80,7 @@ jobs:
       - name: Scan notification-controller image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/weaveworks/notification-controller:${{ needs.get-image-version.outputs.nc }}'
+          image-ref: 'ghcr.io/weaveworks/notification-controller@${{ needs.get-image-version.outputs.nc }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -119,7 +89,7 @@ jobs:
       - name: Scan image-reflector-controller image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/weaveworks/image-reflector-controller:${{ needs.get-image-version.outputs.irc }}'
+          image-ref: 'ghcr.io/weaveworks/image-reflector-controller@${{ needs.get-image-version.outputs.irc }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -128,7 +98,7 @@ jobs:
       - name: Scan image-automation-controller image
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/weaveworks/image-automation-controller:${{ needs.get-image-version.outputs.iac }}'
+          image-ref: 'ghcr.io/weaveworks/image-automation-controller@${{ needs.get-image-version.outputs.iac }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -137,7 +107,7 @@ jobs:
       - name: Scan flux2 image Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'ghcr.io/weaveworks/flux-cli:${{ needs.get-image-version.outputs.flux2 }}'
+          image-ref: 'ghcr.io/weaveworks/flux-cli@${{ needs.get-image-version.outputs.flux2 }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -158,48 +128,48 @@ jobs:
         uses: docker/scout-action@4e9ac4df44fb56797da111fce8185f7fbffd5a09 # v1.0.9
         with:
           command: cves
-          image: 'ghcr.io/weaveworks/source-controller:${{ needs.get-image-version.outputs.sc }}'
+          image: 'ghcr.io/weaveworks/source-controller@${{ needs.get-image-version.outputs.sc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan kustomize-controller image
         uses: docker/scout-action@4e9ac4df44fb56797da111fce8185f7fbffd5a09 # v1.0.9
         with:
           command: cves
-          image: 'ghcr.io/weaveworks/kustomize-controller:${{ needs.get-image-version.outputs.kc }}'
+          image: 'ghcr.io/weaveworks/kustomize-controller@${{ needs.get-image-version.outputs.kc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan helm-controller image
         uses: docker/scout-action@4e9ac4df44fb56797da111fce8185f7fbffd5a09 # v1.0.9
         with:
           command: cves
-          image: 'ghcr.io/weaveworks/helm-controller:${{ needs.get-image-version.outputs.hc }}'
+          image: 'ghcr.io/weaveworks/helm-controller@${{ needs.get-image-version.outputs.hc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan notification-controller image
         uses: docker/scout-action@4e9ac4df44fb56797da111fce8185f7fbffd5a09 # v1.0.9
         with:
           command: cves
-          image: 'ghcr.io/weaveworks/notification-controller:${{ needs.get-image-version.outputs.nc }}'
+          image: 'ghcr.io/weaveworks/notification-controller@${{ needs.get-image-version.outputs.nc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan image-reflector-controller image
         uses: docker/scout-action@4e9ac4df44fb56797da111fce8185f7fbffd5a09 # v1.0.9
         with:
           command: cves
-          image: 'ghcr.io/weaveworks/image-reflector-controller:${{ needs.get-image-version.outputs.irc }}'
+          image: 'ghcr.io/weaveworks/image-reflector-controller@${{ needs.get-image-version.outputs.irc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan image-automation-controller image
         uses: docker/scout-action@4e9ac4df44fb56797da111fce8185f7fbffd5a09 # v1.0.9
         with:
           command: cves
-          image: 'ghcr.io/weaveworks/image-automation-controller:${{ needs.get-image-version.outputs.iac }}'
+          image: 'ghcr.io/weaveworks/image-automation-controller@${{ needs.get-image-version.outputs.iac }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan flux2 image
         uses: docker/scout-action@4e9ac4df44fb56797da111fce8185f7fbffd5a09 # v1.0.9
         with:
           command: cves
-          image: 'ghcr.io/weaveworks/flux-cli:${{ needs.get-image-version.outputs.flux2 }}'
+          image: 'ghcr.io/weaveworks/flux-cli@${{ needs.get-image-version.outputs.flux2 }}'
           only-severities: critical,high
           exit-code: true
