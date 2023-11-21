@@ -6,7 +6,9 @@ From: Soule BA <soule@weave.works>
 ---
  api/go.mod |    4 ++--
  api/go.sum |   10 +++++-----
- 2 files changed, 7 insertions(+), 7 deletions(-)
+ go.mod     |    8 ++++----
+ go.sum     |   16 ++++++++--------
+ 4 files changed, 19 insertions(+), 19 deletions(-)
 
 diff --git a/api/go.mod b/api/go.mod
 index 182f47d..1024a01 100644
