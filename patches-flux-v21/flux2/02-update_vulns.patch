@@ -1,0 +1,96 @@
+update_vulns
+
+From: Soule BA <soule@weave.works>
+
+
+---
+ go.mod |   16 ++++++++--------
+ go.sum |   32 ++++++++++++++++----------------
+ 2 files changed, 24 insertions(+), 24 deletions(-)
+
+diff --git a/go.mod b/go.mod
+index 6dd1e45d..589d1eca 100644
+--- a/go.mod
++++ b/go.mod
+@@ -48,14 +48,14 @@ require (
+ 	github.com/theckman/yacspin v0.13.12
+ 	golang.org/x/crypto v0.14.0
+ 	golang.org/x/term v0.13.0
+-	k8s.io/api v0.27.4
+-	k8s.io/apiextensions-apiserver v0.27.4
+-	k8s.io/apimachinery v0.27.4
+-	k8s.io/cli-runtime v0.27.4
+-	k8s.io/client-go v0.27.4
+-	k8s.io/kubectl v0.27.4
++	k8s.io/api v0.27.8
++	k8s.io/apiextensions-apiserver v0.27.8
++	k8s.io/apimachinery v0.27.8
++	k8s.io/cli-runtime v0.27.8
++	k8s.io/client-go v0.27.8
++	k8s.io/kubectl v0.27.8
+ 	sigs.k8s.io/cli-utils v0.35.0
+-	sigs.k8s.io/controller-runtime v0.15.1
++	sigs.k8s.io/controller-runtime v0.15.3
+ 	sigs.k8s.io/kustomize/api v0.13.4
+ 	sigs.k8s.io/kustomize/kyaml v0.14.2
+ 	sigs.k8s.io/yaml v1.3.0
+@@ -205,7 +205,7 @@ require (
+ 	gopkg.in/warnings.v0 v0.1.2 // indirect
+ 	gopkg.in/yaml.v2 v2.4.0 // indirect
+ 	gopkg.in/yaml.v3 v3.0.1 // indirect
+-	k8s.io/component-base v0.27.4 // indirect
++	k8s.io/component-base v0.27.8 // indirect
+ 	k8s.io/klog/v2 v2.100.1 // indirect
+ 	k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f // indirect
+ 	k8s.io/utils v0.0.0-20230505201702-9f6742963106 // indirect
+diff --git a/go.sum b/go.sum
+index ee19e2d6..6bfcfa39 100644
+--- a/go.sum
++++ b/go.sum
+@@ -683,30 +683,30 @@ gotest.tools v2.2.0+incompatible h1:VsBPFP1AI068pPrMxtb/S8Zkgf9xEmTLJjfM+P5UIEo=
+ gotest.tools/v3 v3.0.3 h1:4AuOwCGf4lLR9u3YOe2awrHygurzhO/HeQ6laiA6Sx0=
+ honnef.co/go/tools v0.0.0-20190102054323-c2f93a96b099/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
+ honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
+-k8s.io/api v0.27.4 h1:0pCo/AN9hONazBKlNUdhQymmnfLRbSZjd5H5H3f0bSs=
+-k8s.io/api v0.27.4/go.mod h1:O3smaaX15NfxjzILfiln1D8Z3+gEYpjEpiNA/1EVK1Y=
+-k8s.io/apiextensions-apiserver v0.27.4 h1:ie1yZG4nY/wvFMIR2hXBeSVq+HfNzib60FjnBYtPGSs=
+-k8s.io/apiextensions-apiserver v0.27.4/go.mod h1:KHZaDr5H9IbGEnSskEUp/DsdXe1hMQ7uzpQcYUFt2bM=
+-k8s.io/apimachinery v0.27.4 h1:CdxflD4AF61yewuid0fLl6bM4a3q04jWel0IlP+aYjs=
+-k8s.io/apimachinery v0.27.4/go.mod h1:XNfZ6xklnMCOGGFNqXG7bUrQCoR04dh/E7FprV6pb+E=
+-k8s.io/cli-runtime v0.27.4 h1:Zb0eci+58eHZNnoHhjRFc7W88s8dlG12VtIl3Nv2Hto=
+-k8s.io/cli-runtime v0.27.4/go.mod h1:k9Z1xiZq2xNplQmehpDquLgc+rE+pubpO1cK4al4Mlw=
+-k8s.io/client-go v0.27.4 h1:vj2YTtSJ6J4KxaC88P4pMPEQECWMY8gqPqsTgUKzvjk=
+-k8s.io/client-go v0.27.4/go.mod h1:ragcly7lUlN0SRPk5/ZkGnDjPknzb37TICq07WhI6Xc=
+-k8s.io/component-base v0.27.4 h1:Wqc0jMKEDGjKXdae8hBXeskRP//vu1m6ypC+gwErj4c=
+-k8s.io/component-base v0.27.4/go.mod h1:hoiEETnLc0ioLv6WPeDt8vD34DDeB35MfQnxCARq3kY=
++k8s.io/api v0.27.8 h1:Ja93gbyII5c3TJzWefEwGhlqC5SZksWhzRS+OYHIocU=
++k8s.io/api v0.27.8/go.mod h1:2HuWJC6gpx4UScY+ezziNzv6j6Jqd2q0rGgobYSSjcs=
++k8s.io/apiextensions-apiserver v0.27.8 h1:u9PON71euIhVbHdZ5YlznpY60GtRjPagf1mQXLo1siA=
++k8s.io/apiextensions-apiserver v0.27.8/go.mod h1:qBlRJTKCA0gnFVCsjzbz3YJZ49TCBNEwvEF2TPMRqOs=
++k8s.io/apimachinery v0.27.8 h1:Xg+ogjDm8s7KmV3vZGf7uOZ0jrC6FPy2Lk/h7BIRmvg=
++k8s.io/apimachinery v0.27.8/go.mod h1:EIXLxLt/b1muPITiF5zlrcm7I+YnXsIgM+0GdnPTQvA=
++k8s.io/cli-runtime v0.27.8 h1:ZaDL/cjiQL+Wy+Rli42YOIJUy0/RnFAN8MFgh+5MK7Y=
++k8s.io/cli-runtime v0.27.8/go.mod h1:QSiR1aJwFj33pxLkd6wVzORDfLq8OFog53qHRW7KkWg=
++k8s.io/client-go v0.27.8 h1:uXIsGniqc85kKQ8FV0iAwspb0JHtS1UybqrqzHaQ9hc=
++k8s.io/client-go v0.27.8/go.mod h1:Ka6MUpObn3LRTfFPvjzyettp8LXCbhqLzZfi8TD4fP8=
++k8s.io/component-base v0.27.8 h1:O8YRFv/wWvoo9z62p1N52lq+w5FpzILAlE1h8b9o3K8=
++k8s.io/component-base v0.27.8/go.mod h1:h3uyZl+bFQeuLRz3owfSLaw3JKTrn6gmbvybkkW2z+I=
+ k8s.io/klog/v2 v2.100.1 h1:7WCHKK6K8fNhTqfBhISHQ97KrnJNFZMcQvKp7gP/tmg=
+ k8s.io/klog/v2 v2.100.1/go.mod h1:y1WjHnz7Dj687irZUWR/WLkLc5N1YHtjLdmgWjndZn0=
+ k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f h1:2kWPakN3i/k81b0gvD5C5FJ2kxm1WrQFanWchyKuqGg=
+ k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f/go.mod h1:byini6yhqGC14c3ebc/QwanvYwhuMWF6yz2F8uwW8eg=
+-k8s.io/kubectl v0.27.4 h1:RV1TQLIbtL34+vIM+W7HaS3KfAbqvy9lWn6pWB9els4=
+-k8s.io/kubectl v0.27.4/go.mod h1:qtc1s3BouB9KixJkriZMQqTsXMc+OAni6FeKAhq7q14=
++k8s.io/kubectl v0.27.8 h1:VipG0f9E1kGRGJYm2/kNv188RgDduvx1g2q1b20niHg=
++k8s.io/kubectl v0.27.8/go.mod h1:ZufZqfI5V7oBuGFALJHoTxypO0fewOwbadr4saUkRKo=
+ k8s.io/utils v0.0.0-20230505201702-9f6742963106 h1:EObNQ3TW2D+WptiYXlApGNLVy0zm/JIBVY9i+M4wpAU=
+ k8s.io/utils v0.0.0-20230505201702-9f6742963106/go.mod h1:OLgZIPagt7ERELqWJFomSt595RzquPNLL48iOWgYOg0=
+ sigs.k8s.io/cli-utils v0.35.0 h1:dfSJaF1W0frW74PtjwiyoB4cwdRygbHnC7qe7HF0g/Y=
+ sigs.k8s.io/cli-utils v0.35.0/go.mod h1:ITitykCJxP1vaj1Cew/FZEaVJ2YsTN9Q71m02jebkoE=
+-sigs.k8s.io/controller-runtime v0.15.1 h1:9UvgKD4ZJGcj24vefUFgZFP3xej/3igL9BsOUTb/+4c=
+-sigs.k8s.io/controller-runtime v0.15.1/go.mod h1:7ngYvp1MLT+9GeZ+6lH3LOlcHkp/+tzA/fmHa4iq9kk=
++sigs.k8s.io/controller-runtime v0.15.3 h1:L+t5heIaI3zeejoIyyvLQs5vTVu/67IU2FfisVzFlBc=
++sigs.k8s.io/controller-runtime v0.15.3/go.mod h1:kp4jckA4vTx281S/0Yk2LFEEQe67mjg+ev/yknv47Ds=
+ sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd h1:EDPBXCAspyGV4jQlpZSudPeMmr1bNJefnuqLsRAsHZo=
+ sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd/go.mod h1:B8JuhiUyNFVKdsE8h686QcCxMaH6HrOAZj4vswFpcB0=
+ sigs.k8s.io/kustomize/api v0.13.4 h1:E38Hfx0G9R9v7vRgKshviPotJQETG0S2gD3JdHLCAsI=
