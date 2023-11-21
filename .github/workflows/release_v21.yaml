@@ -479,7 +479,7 @@ jobs:
           echo "NOTIFICATION_CONTROLLER_IMAGE_DIGEST=${{ needs.release-notification-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
           echo "FLUX_CLI_IMAGE_DIGEST=${{ needs.release-flux-cli.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
           
-          oras push ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} ./ghcr.io/flux-system/image_digests
+          oras push -u weave-ghcr-bot -p ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }} ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} ./ghcr.io/flux-system/image_digests
       - uses: sigstore/cosign-installer@1fc5bd396d372bee37d608f955b336615edf79c8 # v3.2.0
       - name: Sign manifests
         env:
@@ -489,7 +489,7 @@ jobs:
       - name: Tag manifests
         run: |
           VERSION=${GITHUB_REF/refs\/tags\//}
-          oras tag artifact oci://ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} $VERSION
+          oras tag -u weave-ghcr-bot -p ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }} ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} $VERSION
 
   release-provenance:
     needs: [release-flux-cli]
