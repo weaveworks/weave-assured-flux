@@ -4,12 +4,12 @@ From: Soule BA <bah.soule@gmail.com>
 
 
 ---
- go.mod |   16 ++++++++--------
+ go.mod |   14 +++++++-------
  go.sum |   30 +++++++++++++++---------------
- 2 files changed, 23 insertions(+), 23 deletions(-)
+ 2 files changed, 22 insertions(+), 22 deletions(-)
 
 diff --git a/go.mod b/go.mod
-index 4a1325e..884fa28 100644
+index 4a1325e..867ef3d 100644
 --- a/go.mod
 +++ b/go.mod
 @@ -32,11 +32,11 @@ require (
@@ -32,10 +32,9 @@ index 4a1325e..884fa28 100644
  	gomodules.xyz/jsonpatch/v2 v2.3.0 // indirect
  	google.golang.org/appengine v1.6.7 // indirect
 -	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
--	google.golang.org/grpc v1.56.3 // indirect
--	google.golang.org/protobuf v1.30.0 // indirect
 +	google.golang.org/genproto/googleapis/rpc v0.0.0-20230525234030-28d5490b6b19 // indirect
-+	google.golang.org/grstgpc v1.56.3 // indirect
+ 	google.golang.org/grpc v1.56.3 // indirect
+-	google.golang.org/protobuf v1.30.0 // indirect
 +	google.golang.org/protobuf v1.31.0 // indirect
  	gopkg.in/inf.v0 v0.9.1 // indirect
  	gopkg.in/yaml.v3 v3.0.1 // indirect
@@ -112,3 +111,4 @@ index 37d87c3..624b515 100644
  k8s.io/klog/v2 v2.100.1 h1:7WCHKK6K8fNhTqfBhISHQ97KrnJNFZMcQvKp7gP/tmg=
  k8s.io/klog/v2 v2.100.1/go.mod h1:y1WjHnz7Dj687irZUWR/WLkLc5N1YHtjLdmgWjndZn0=
  k8s.io/kube-openapi v0.0.0-20230501164219-8b0f38b5fd1f h1:2kWPakN3i/k81b0gvD5C5FJ2kxm1WrQFanWchyKuqGg=
+f h1:2kWPakN3i/k81b0gvD5C5FJ2kxm1WrQFanWchyKuqGg=
