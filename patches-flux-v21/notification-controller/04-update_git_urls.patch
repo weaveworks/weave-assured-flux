@@ -1,0 +1,67 @@
+update_git_urls
+
+From: Soule BA <bah.soule@gmail.com>
+
+
+---
+ go.mod                    |    2 +-
+ go.sum                    |    4 ++--
+ internal/notifier/util.go |    2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/go.mod b/go.mod
+index d49e5c8..0c85eab 100644
+--- a/go.mod
++++ b/go.mod
+@@ -12,6 +12,7 @@ require (
+ 	github.com/Azure/azure-event-hubs-go/v3 v3.6.1
+ 	github.com/DataDog/datadog-api-client-go/v2 v2.15.0
+ 	github.com/PagerDuty/go-pagerduty v1.7.0
++	github.com/chainguard-dev/git-urls v1.0.2
+ 	github.com/containrrr/shoutrrr v0.8.0
+ 	github.com/fluxcd/notification-controller/api v1.1.0
+ 	github.com/fluxcd/pkg/apis/event v0.5.2
+@@ -31,7 +32,6 @@ require (
+ 	github.com/slok/go-http-metrics v0.10.0
+ 	github.com/spf13/pflag v1.0.5
+ 	github.com/stretchr/testify v1.8.4
+-	github.com/whilp/git-urls v1.0.0
+ 	github.com/xanzy/go-gitlab v0.90.0
+ 	golang.org/x/oauth2 v0.11.0
+ 	google.golang.org/api v0.138.0
+diff --git a/go.sum b/go.sum
+index fa7178a..a0a4f0e 100644
+--- a/go.sum
++++ b/go.sum
+@@ -685,6 +685,8 @@ github.com/cespare/xxhash/v2 v2.2.0 h1:DC2CZ1Ep5Y4k3ZQ899DldepgrayRUGE6BBZ/cd9Cj
+ github.com/cespare/xxhash/v2 v2.2.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
+ github.com/chai2010/gettext-go v1.0.2 h1:1Lwwip6Q2QGsAdl/ZKPCwTe9fe0CjlUbqj5bFNSjIRk=
+ github.com/chai2010/gettext-go v1.0.2/go.mod h1:y+wnP2cHYaVj19NZhYKAwEMH2CI1gNHeQQ+5AjwawxA=
++github.com/chainguard-dev/git-urls v1.0.2 h1:pSpT7ifrpc5X55n4aTTm7FFUE+ZQHKiqpiwNkJrVcKQ=
++github.com/chainguard-dev/git-urls v1.0.2/go.mod h1:rbGgj10OS7UgZlbzdUQIQpT0k/D4+An04HJY7Ol+Y/o=
+ github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
+ github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
+ github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
+@@ -1094,8 +1096,6 @@ github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o
+ github.com/stretchr/testify v1.8.2/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
+ github.com/stretchr/testify v1.8.4 h1:CcVxjf3Q8PM0mHUKJCdn+eZZtm5yQwehR5yeSVQQcUk=
+ github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
+-github.com/whilp/git-urls v1.0.0 h1:95f6UMWN5FKW71ECsXRUd3FVYiXdrE7aX4NZKcPmIjU=
+-github.com/whilp/git-urls v1.0.0/go.mod h1:J16SAmobsqc3Qcy98brfl5f5+e0clUvg1krgwk/qCfE=
+ github.com/xanzy/go-gitlab v0.90.0 h1:j8ZUHfLfXdnC+B8njeNaW/kM44c1zw8fiuNj7D+qQN8=
+ github.com/xanzy/go-gitlab v0.90.0/go.mod h1:5ryv+MnpZStBH8I/77HuQBsMbBGANtVpLWC15qOjWAw=
+ github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=
+diff --git a/internal/notifier/util.go b/internal/notifier/util.go
+index c7b59bd..4bdd5c6 100644
+--- a/internal/notifier/util.go
++++ b/internal/notifier/util.go
+@@ -26,8 +26,8 @@ import (
+ 
+ 	"github.com/fluxcd/pkg/git"
+ 
++	giturls "github.com/chainguard-dev/git-urls"
+ 	eventv1 "github.com/fluxcd/pkg/apis/event/v1beta1"
+-	giturls "github.com/whilp/git-urls"
+ )
+ 
+ func parseGitAddress(s string) (string, string, error) {

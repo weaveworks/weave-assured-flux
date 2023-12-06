@@ -37,7 +37,7 @@ jobs:
           fi
 
           oras pull ghcr.io/weaveworks/flux-images-digests:$LATEST
-          source image_digests
+          source ./ghcr.io/flux-system/image_digests
           echo "sc=${SOURCE_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
           echo "kc=${KUSTOMIZE_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
           echo "hc=${HELM_CONTROLLER_IMAGE_DIGEST}" >> $GITHUB_OUTPUT
