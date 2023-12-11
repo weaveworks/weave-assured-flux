@@ -125,49 +125,49 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Scan source-controller image
-        uses: docker/scout-action@7c61653c2736d21969dd4593fde76c670d4a86cb # v1.2.0
+        uses: docker/scout-action@b7413c99043c2a9131c0fa39cedaece80f285788 # v1.2.2
         with:
           command: cves
           image: 'ghcr.io/weaveworks/source-controller@${{ needs.get-image-version.outputs.sc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan kustomize-controller image
-        uses: docker/scout-action@7c61653c2736d21969dd4593fde76c670d4a86cb # v1.2.0
+        uses: docker/scout-action@b7413c99043c2a9131c0fa39cedaece80f285788 # v1.2.2
         with:
           command: cves
           image: 'ghcr.io/weaveworks/kustomize-controller@${{ needs.get-image-version.outputs.kc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan helm-controller image
-        uses: docker/scout-action@7c61653c2736d21969dd4593fde76c670d4a86cb # v1.2.0
+        uses: docker/scout-action@b7413c99043c2a9131c0fa39cedaece80f285788 # v1.2.2
         with:
           command: cves
           image: 'ghcr.io/weaveworks/helm-controller@${{ needs.get-image-version.outputs.hc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan notification-controller image
-        uses: docker/scout-action@7c61653c2736d21969dd4593fde76c670d4a86cb # v1.2.0
+        uses: docker/scout-action@b7413c99043c2a9131c0fa39cedaece80f285788 # v1.2.2
         with:
           command: cves
           image: 'ghcr.io/weaveworks/notification-controller@${{ needs.get-image-version.outputs.nc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan image-reflector-controller image
-        uses: docker/scout-action@7c61653c2736d21969dd4593fde76c670d4a86cb # v1.2.0
+        uses: docker/scout-action@b7413c99043c2a9131c0fa39cedaece80f285788 # v1.2.2
         with:
           command: cves
           image: 'ghcr.io/weaveworks/image-reflector-controller@${{ needs.get-image-version.outputs.irc }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan image-automation-controller image
-        uses: docker/scout-action@7c61653c2736d21969dd4593fde76c670d4a86cb # v1.2.0
+        uses: docker/scout-action@b7413c99043c2a9131c0fa39cedaece80f285788 # v1.2.2
         with:
           command: cves
           image: 'ghcr.io/weaveworks/image-automation-controller@${{ needs.get-image-version.outputs.iac }}'
           only-severities: critical,high
           exit-code: true
       - name: Scan flux2 image
-        uses: docker/scout-action@7c61653c2736d21969dd4593fde76c670d4a86cb # v1.2.0
+        uses: docker/scout-action@b7413c99043c2a9131c0fa39cedaece80f285788 # v1.2.2
         with:
           command: cves
           image: 'ghcr.io/weaveworks/flux-cli@${{ needs.get-image-version.outputs.flux2 }}'
