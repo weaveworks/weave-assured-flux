@@ -225,7 +225,7 @@ jobs:
           git config --global user.name "Soule BA"
           git config --global user.email "soule@weave.works"
       - name: Setup Go
-        uses: actions/setup-go@93397bea11091df50f3d7e59dc26a7711a8bcfbe # v4.1.0
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
         with:
           go-version: 1.20.x
           cache: false
@@ -235,9 +235,9 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
       - name: Setup Syft
-        uses: anchore/sbom-action/download-syft@fd74a6fb98a204a1ad35bbfae0122c1a302ff88b # v0.15.0
+        uses: anchore/sbom-action/download-syft@5ecf649a417b8ae17dc8383dc32d46c03f2312df # v0.15.1
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@1fc5bd396d372bee37d608f955b336615edf79c8 # v3.2.0
+        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
@@ -269,7 +269,7 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "raw_version=${RAW_VERSION}" >> $GITHUB_OUTPUT
       - name: Download all controllers release artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: ./flux2
       - name: Place yamls in the right place
@@ -409,7 +409,7 @@ jobs:
           --path="./flux-system" \
           --source=${{ github.repositoryUrl }} \
           --revision="${{ github.ref_name }}@sha1:${{ github.sha }}"
-      - uses: sigstore/cosign-installer@1fc5bd396d372bee37d608f955b336615edf79c8 # v3.2.0
+      - uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
       - name: Sign manifests
         env:
           COSIGN_EXPERIMENTAL: 1
@@ -480,7 +480,7 @@ jobs:
           echo "FLUX_CLI_IMAGE_DIGEST=${{ needs.release-flux-cli.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
           
           oras push -u weave-ghcr-bot -p ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }} ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} ./ghcr.io/flux-system/image_digests
-      - uses: sigstore/cosign-installer@1fc5bd396d372bee37d608f955b336615edf79c8 # v3.2.0
+      - uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
       - name: Sign manifests
         env:
           COSIGN_EXPERIMENTAL: 1
