@@ -1,0 +1,520 @@
+name: release_v22
+
+on:
+  push:
+    tags:
+      - v2.2.*
+
+jobs:
+  nightly-tag:
+    outputs:
+      nightly: ${{ steps.version.outputs.nightly }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{  github.ref }}" == refs/tags/v*.nightly* ]]; then
+            echo "nightly=true" >> $GITHUB_OUTPUT
+          else
+            echo "nightly=false" >> $GITHUB_OUTPUT
+          fi
+          exit 0
+
+  release-source-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: source-controller
+      version: v22
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-kustomize-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: kustomize-controller
+      version: v22
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-helm-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: helm-controller
+      version: v22
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-image-reflector-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: image-reflector-controller
+      version: v22
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-image-automation-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: image-automation-controller
+      version: v22
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  release-notification-controller:
+    needs: [nightly-tag]
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    uses: ./.github/workflows/controller_release.yaml
+    with:
+      controller: notification-controller
+      version: v22
+      nightly: ${{ needs.nightly-tag.outputs.nightly }}
+    secrets:
+      ghcrToken: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  sc-ghcr-provenance:
+    needs: [release-source-controller]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ghcr.io/${{ needs.release-source-controller.outputs.image_url }}
+      digest: ${{ needs.release-source-controller.outputs.image_digest }}
+      registry-username: weave-ghcr-bot
+      private-repository: true
+    secrets:
+      registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  kc-ghcr-provenance:
+    needs: [release-kustomize-controller]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ghcr.io/${{ needs.release-kustomize-controller.outputs.image_url }}
+      digest: ${{ needs.release-kustomize-controller.outputs.image_digest }}
+      registry-username: weave-ghcr-bot
+      private-repository: true
+    secrets:
+      registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  hc-ghcr-provenance:
+    needs: [release-helm-controller]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ghcr.io/${{ needs.release-helm-controller.outputs.image_url }}
+      digest: ${{ needs.release-helm-controller.outputs.image_digest }}
+      registry-username: weave-ghcr-bot
+      private-repository: true
+    secrets:
+      registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  irc-ghcr-provenance:
+    needs: [release-image-reflector-controller]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ghcr.io/${{ needs.release-image-reflector-controller.outputs.image_url }}
+      digest: ${{ needs.release-image-reflector-controller.outputs.image_digest }}
+      registry-username: weave-ghcr-bot
+      private-repository: true
+    secrets:
+      registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  iac-ghcr-provenance:
+    needs: [release-image-automation-controller]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ghcr.io/${{ needs.release-image-automation-controller.outputs.image_url }}
+      digest: ${{ needs.release-image-automation-controller.outputs.image_digest }}
+      registry-username: weave-ghcr-bot
+      private-repository: true
+    secrets:
+      registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+
+  nc-ghcr-provenance:
+    needs: [release-notification-controller]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    if: startsWith(github.ref, 'refs/tags/v')
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ghcr.io/${{ needs.release-notification-controller.outputs.image_url }}
+      digest: ${{ needs.release-notification-controller.outputs.image_digest }}
+      registry-username: weave-ghcr-bot
+      private-repository: true
+    secrets:
+      registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+  
+  release-flux-cli:
+    outputs:
+      hashes: ${{ steps.slsa.outputs.hashes }}
+      image_url: ${{ steps.slsa.outputs.image_url }}
+      image_digest: ${{ steps.slsa.outputs.image_digest }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed to write releases
+      id-token: write # needed for keyless signing
+      packages: write # needed for ghcr access
+    needs: [nightly-tag,sc-ghcr-provenance, kc-ghcr-provenance, hc-ghcr-provenance, irc-ghcr-provenance, iac-ghcr-provenance, nc-ghcr-provenance]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Kustomize
+        uses: fluxcd/pkg/actions/kustomize@main
+      - name: install stgit
+        shell: bash
+        run: |
+          sudo apt-get install -y stgit
+          git config --global user.name "Soule BA"
+          git config --global user.email "soule@weave.works"
+      - name: Setup Go
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5.0.0
+        with:
+          go-version: 1.20.x
+          cache: false
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+      - name: Setup Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+      - name: Setup Syft
+        uses: anchore/sbom-action/download-syft@5ecf649a417b8ae17dc8383dc32d46c03f2312df # v0.15.1
+      - name: Setup Cosign
+        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: weave-ghcr-bot
+          password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+      - name: Clone and patch repo
+        id: patch
+        run: |
+          ln -s patches-flux-v22 patches-flux
+          rm -rf flux2 || true
+          source ./patches-flux/VERSION
+          if [[ "$FLUX2_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
+            VERSION=${FLUX2_BASE_VERSION}-${FLUX2_SUFFIX_VERSION}
+          else
+            VERSION=${FLUX2_BASE_VERSION}-wa
+          fi
+          if [[ "${{ needs.nightly-tag.outputs.nightly }}" == "true" ]]; then
+            VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
+            # also patch .goreleaser.yml
+            sed -e "/^\([[:space:]]*make_latest: \).*/s//\1false/" .goreleaser.yml > .goreleaser.yml.new
+            mv -- .goreleaser.yml.new .goreleaser.yml
+          else
+            VERSION=${VERSION}.$(date +%y%m%d%H%M%S)
+          fi
+          bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/flux2.git" flux2 ${FLUX2_BASE_VERSION} 
+          unlink patches-flux
+          RAW_VERSION=$(echo $VERSION | cut -c2-)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "raw_version=${RAW_VERSION}" >> $GITHUB_OUTPUT
+      - name: Download all controllers release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./flux2
+      - name: Place yamls in the right place
+        run: |
+          # source-controller yamls
+          cp -p ./flux2/source-controller/source-controller.crds.yaml ./flux2/manifests/bases/source-controller/
+          cp -p ./flux2/source-controller/source-controller.crds.yaml ./flux2/manifests/crds/
+          cp -p ./flux2/source-controller/source-controller.deployment.yaml ./flux2/manifests/bases/source-controller/
+          # kustomize-controller yamls
+          cp -p ./flux2/kustomize-controller/kustomize-controller.crds.yaml ./flux2/manifests/bases/kustomize-controller/
+          cp -p ./flux2/kustomize-controller/kustomize-controller.crds.yaml ./flux2/manifests/crds/
+          cp -p ./flux2/kustomize-controller/kustomize-controller.deployment.yaml ./flux2/manifests/bases/kustomize-controller/
+          # helm-controller yamls
+          cp -p ./flux2/helm-controller/helm-controller.crds.yaml ./flux2/manifests/bases/helm-controller/
+          cp -p ./flux2/helm-controller/helm-controller.crds.yaml ./flux2/manifests/crds/
+          cp -p ./flux2/helm-controller/helm-controller.deployment.yaml ./flux2/manifests/bases/helm-controller/
+          # image-reflector-controller yamls
+          cp -p ./flux2/image-reflector-controller/image-reflector-controller.crds.yaml ./flux2/manifests/bases/image-reflector-controller/
+          cp -p ./flux2/image-reflector-controller/image-reflector-controller.crds.yaml ./flux2/manifests/crds/
+          cp -p ./flux2/image-reflector-controller/image-reflector-controller.deployment.yaml ./flux2/manifests/bases/image-reflector-controller/
+          # image-automation-controller yamls
+          cp -p ./flux2/image-automation-controller/image-automation-controller.crds.yaml ./flux2/manifests/bases/image-automation-controller/
+          cp -p ./flux2/image-automation-controller/image-automation-controller.crds.yaml ./flux2/manifests/crds/
+          cp -p ./flux2/image-automation-controller/image-automation-controller.deployment.yaml ./flux2/manifests/bases/image-automation-controller/
+          # notification-controller yamls
+          cp -p ./flux2/notification-controller/notification-controller.crds.yaml ./flux2/manifests/bases/notification-controller/
+          cp -p ./flux2/notification-controller/notification-controller.crds.yaml ./flux2/manifests/crds/
+          cp -p ./flux2/notification-controller/notification-controller.deployment.yaml ./flux2/manifests/bases/notification-controller/
+      - name: Generate manifests
+        run: |
+          cd ./flux2
+          make cmd/flux/.manifests.done
+          ./manifests/scripts/bundle.sh "" ../output manifests.tar.gz
+          kustomize build ./manifests/install > ../output/install.yaml
+      - name: Build CRDs
+        run: |
+          kustomize build ./flux2/manifests/crds > all-crds.yaml
+      - name: Generate OpenAPI JSON schemas from CRDs
+        uses: fluxcd/pkg/actions/crdjsonschema@main
+        with:
+          crd: all-crds.yaml
+          output: schemas
+      - name: Archive the OpenAPI JSON schemas
+        run: |
+          tar -czvf ./output/crd-schemas.tar.gz -C schemas .
+      - name: Run GoReleaser
+        id: run-goreleaser
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: goreleaser/goreleaser-action@7ec5c2b0c6cdda6e8bbb49444bc797dd33d74dd8 # v5.0.0
+        with:
+          version: latest
+          args: release --clean --skip=validate
+        env:
+          GITHUB_TOKEN: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+          BUILD_VERSION: ${{ steps.patch.outputs.version }}
+          BUILD_VERSION_RAW: ${{ steps.patch.outputs.raw_version }}
+      - name: Generate SLSA metadata
+        id: slsa
+        env:
+          ARTIFACTS: "${{ steps.run-goreleaser.outputs.artifacts }}"
+        run: |
+          set -euo pipefail
+          
+          hashes=$(echo -E $ARTIFACTS | jq --raw-output '.[] | {name, "digest": (.extra.Digest // .extra.Checksum)} | select(.digest) | {digest} + {name} | join("  ") | sub("^sha256:";"")' | base64 -w0)
+          echo "hashes=$hashes" >> $GITHUB_OUTPUT
+          
+          image_url=ghcr.io/weaveworks/flux-cli:${{ steps.patch.outputs.version }}
+          echo "image_url=$image_url" >> $GITHUB_OUTPUT
+          
+          image_digest=$(docker buildx imagetools inspect ${image_url}  --format '{{json .}}' | jq -r .manifest.digest)
+          echo "image_digest=$image_digest" >> $GITHUB_OUTPUT
+
+  release-flux-manifests:
+    runs-on: ubuntu-latest
+    needs: [nightly-tag, release-flux-cli, release-source-controller, release-kustomize-controller, release-helm-controller,
+      release-image-reflector-controller, release-image-automation-controller, release-notification-controller]
+    permissions:
+      id-token: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Kustomize
+        uses: fluxcd/pkg/actions/kustomize@main
+      - name: install stgit
+        shell: bash
+        run: |
+          sudo apt-get install -y stgit
+          git config --global user.name "Soule BA"
+          git config --global user.email "soule@weave.works"
+      - name: Clone and patch repo
+        id: patch
+        run: |
+          ln -s patches-flux-v22 patches-flux
+          rm -rf flux2 || true
+          source ./patches-flux/VERSION
+          if [[ "$FLUX2_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
+            VERSION=${FLUX2_BASE_VERSION}-${FLUX2_SUFFIX_VERSION}
+          else
+            VERSION=${FLUX2_BASE_VERSION}-wa
+          fi
+          if [[ "${{ needs.nightly-tag.outputs.nightly }}" == "true" ]]; then
+            VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
+          else
+            VERSION=${VERSION}.$(date +%y%m%d%H%M%S)
+          fi
+          bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/flux2.git" flux2 ${FLUX2_BASE_VERSION} 
+          unlink patches-flux
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+      - name: Setup Flux CLI
+        uses: ./flux2/action/
+      - name: Login to GHCR
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
+        with:
+          registry: ghcr.io
+          username: weave-ghcr-bot
+          password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+      - name: Push manifests to GHCR
+        run: |
+          mkdir -p ./ghcr.io/flux-system
+          flux install --registry=ghcr.io/weaveworks \
+          --components-extra=image-reflector-controller,image-automation-controller \
+          --export > ./ghcr.io/flux-system/gotk-components.yaml
+
+          # add all images to the image_digests file
+          echo "SOURCE_CONTROLLER_IMAGE_DIGEST=${{ needs.release-source-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "KUSTOMIZE_CONTROLLER_IMAGE_DIGEST=${{ needs.release-kustomize-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "HELM_CONTROLLER_IMAGE_DIGEST=${{ needs.release-helm-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "IMAGE_REFLECTOR_CONTROLLER_IMAGE_DIGEST=${{ needs.release-image-reflector-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "IMAGE_AUTOMATION_CONTROLLER_IMAGE_DIGEST=${{ needs.release-image-automation-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "NOTIFICATION_CONTROLLER_IMAGE_DIGEST=${{ needs.release-notification-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "FLUX_CLI_IMAGE_DIGEST=${{ needs.release-flux-cli.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          
+          cd ./ghcr.io && flux push artifact \
+          oci://ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }} \
+          --path="./flux-system" \
+          --source=${{ github.repositoryUrl }} \
+          --revision="${{ github.ref_name }}@sha1:${{ github.sha }}"
+      - uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+      - name: Sign manifests
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign sign --yes ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }}
+      - name: Tag manifests
+        run: |
+          flux tag artifact oci://ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }} \
+          --tag latest
+
+          VERSION=${GITHUB_REF/refs\/tags\//}
+          flux tag artifact oci://ghcr.io/weaveworks/flux-manifests:${{ steps.patch.outputs.version }} \
+          --tag $VERSION
+
+  save-images-digests:
+    runs-on: ubuntu-latest
+    needs: [nightly-tag, release-flux-cli, release-source-controller, release-kustomize-controller, release-helm-controller,
+      release-image-reflector-controller, release-image-automation-controller, release-notification-controller]
+    permissions:
+      id-token: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Kustomize
+        uses: fluxcd/pkg/actions/kustomize@main
+      - name: install stgit
+        shell: bash
+        run: |
+          sudo apt-get install -y stgit
+          git config --global user.name "Soule BA"
+          git config --global user.email "soule@weave.works"
+      - name: Clone and patch repo
+        id: patch
+        run: |
+          ln -s patches-flux-v22 patches-flux
+          rm -rf flux2 || true
+          source ./patches-flux/VERSION
+          if [[ "$FLUX2_SUFFIX_VERSION" =~ ^wa[.][0-9]+$ ]]; then
+            VERSION=${FLUX2_BASE_VERSION}-${FLUX2_SUFFIX_VERSION}
+          else
+            VERSION=${FLUX2_BASE_VERSION}-wa
+          fi
+          if [[ "${{ needs.nightly-tag.outputs.nightly }}" == "true" ]]; then
+            VERSION=${VERSION}-nightly.$(date +%y%m%d%H%M%S)
+          else
+            VERSION=${VERSION}.$(date +%y%m%d%H%M%S)
+          fi
+          bash -x ./scripts/patch_repo.sh "https://github.com/fluxcd/flux2.git" flux2 ${FLUX2_BASE_VERSION} 
+          unlink patches-flux
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+      - name: Login to GHCR
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc # v2.2.0
+        with:
+          registry: ghcr.io
+          username: weave-ghcr-bot
+          password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
+      - name: Push manifests to GHCR
+        run: |
+          # add all images to the image_digests file
+          mkdir -p ./ghcr.io/flux-system
+          echo "SOURCE_CONTROLLER_IMAGE_DIGEST=${{ needs.release-source-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "KUSTOMIZE_CONTROLLER_IMAGE_DIGEST=${{ needs.release-kustomize-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "HELM_CONTROLLER_IMAGE_DIGEST=${{ needs.release-helm-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "IMAGE_REFLECTOR_CONTROLLER_IMAGE_DIGEST=${{ needs.release-image-reflector-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "IMAGE_AUTOMATION_CONTROLLER_IMAGE_DIGEST=${{ needs.release-image-automation-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "NOTIFICATION_CONTROLLER_IMAGE_DIGEST=${{ needs.release-notification-controller.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          echo "FLUX_CLI_IMAGE_DIGEST=${{ needs.release-flux-cli.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
+          
+          oras push -u weave-ghcr-bot -p ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }} ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} ./ghcr.io/flux-system/image_digests
+      - uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+      - name: Sign manifests
+        env:
+          COSIGN_EXPERIMENTAL: 1
+        run: |
+          cosign sign --yes ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }}
+      - name: Tag manifests
+        run: |
+          VERSION=${GITHUB_REF/refs\/tags\//}
+          oras tag -u weave-ghcr-bot -p ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }} ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} $VERSION
+
+  release-provenance:
+    needs: [release-flux-cli]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      contents: write # for uploading attestations to GitHub releases.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.9.0
+    with:
+      provenance-name: "provenance.intoto.jsonl"
+      base64-subjects: "${{ needs.release-flux-cli.outputs.hashes }}"
+      upload-assets: true
+      private-repository: true
+
+  ghcr-provenance:
+    needs: [release-flux-cli]
+    permissions:
+      actions: read # for detecting the Github Actions environment.
+      id-token: write # for creating OIDC tokens for signing.
+      packages: write # for uploading attestations.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v1.9.0
+    with:
+      image: ghcr.io/${{ needs.release-flux-cli.outputs.image_url }}
+      digest: ${{ needs.release-flux-cli.outputs.image_digest }}
+      registry-username: weave-ghcr-bot
+      private-repository: true
+    secrets:
+      registry-password: ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }}
