@@ -1,0 +1,245 @@
+Change image name to target weaveworks registry
+
+From: Soule BA <soule@weave.works>
+
+
+---
+ action/action.yml                                  |    4 ++--
+ cmd/flux/bootstrap.go                              |    2 +-
+ cmd/flux/install.go                                |    2 +-
+ manifests/bases/helm-controller/kustomization.yaml |    4 ++--
+ .../image-automation-controller/kustomization.yaml |    4 ++--
+ .../image-reflector-controller/kustomization.yaml  |    4 ++--
+ .../bases/kustomize-controller/kustomization.yaml  |    4 ++--
+ .../notification-controller/kustomization.yaml     |    4 ++--
+ .../bases/source-controller/kustomization.yaml     |    4 ++--
+ manifests/crds/kustomization.yaml                  |   12 ++++++------
+ manifests/install/kustomization.yaml               |   12 ++++++------
+ pkg/manifestgen/install/install.go                 |    4 ++--
+ pkg/manifestgen/install/options.go                 |    4 ++--
+ 13 files changed, 32 insertions(+), 32 deletions(-)
+
+diff --git a/action/action.yml b/action/action.yml
+index d88786ee..583e77e3 100644
+--- a/action/action.yml
++++ b/action/action.yml
+@@ -32,7 +32,7 @@ runs:
+         fi
+ 
+         if [[ -z "$VERSION" ]] || [[ "$VERSION" = "latest" ]]; then
+-          VERSION=$(curl -fsSL -H "Authorization: token ${TOKEN}" https://api.github.com/repos/fluxcd/flux2/releases/latest | grep tag_name | cut -d '"' -f 4)
++          VERSION=$(curl -fsSL -H "Authorization: token ${TOKEN}" https://api.github.com/repos/weaveworks/weave-assured-flux/releases/latest | grep tag_name | cut -d '"' -f 4)
+         fi
+         if [[ -z "$VERSION" ]]; then
+           echo "Unable to determine Flux CLI version"
+@@ -75,7 +75,7 @@ runs:
+ 
+           FLUX_CHECKSUMS_FILE="flux_${VERSION}_checksums.txt"
+ 
+-          FLUX_DOWNLOAD_URL="https://github.com/fluxcd/flux2/releases/download/v${VERSION}/"
++          FLUX_DOWNLOAD_URL="https://github.com/weaveworks/weave-assured-flux/releases/download/v${VERSION}/"
+ 
+           curl -fsSL -o "$DL_DIR/$FLUX_TARGET_FILE" "$FLUX_DOWNLOAD_URL/$FLUX_TARGET_FILE"
+           curl -fsSL -o "$DL_DIR/$FLUX_CHECKSUMS_FILE" "$FLUX_DOWNLOAD_URL/$FLUX_CHECKSUMS_FILE"
+diff --git a/cmd/flux/bootstrap.go b/cmd/flux/bootstrap.go
+index de02154a..1d9525ee 100644
+--- a/cmd/flux/bootstrap.go
++++ b/cmd/flux/bootstrap.go
+@@ -96,7 +96,7 @@ func init() {
+ 	bootstrapCmd.PersistentFlags().StringSliceVar(&bootstrapArgs.extraComponents, "components-extra", nil,
+ 		"list of components in addition to those supplied or defaulted, accepts values such as 'image-reflector-controller,image-automation-controller'")
+ 
+-	bootstrapCmd.PersistentFlags().StringVar(&bootstrapArgs.registry, "registry", "ghcr.io/fluxcd",
++	bootstrapCmd.PersistentFlags().StringVar(&bootstrapArgs.registry, "registry", "ghcr.io/weaveworks",
+ 		"container registry where the Flux controller images are published")
+ 	bootstrapCmd.PersistentFlags().StringVar(&bootstrapArgs.imagePullSecret, "image-pull-secret", "",
+ 		"Kubernetes secret name used for pulling the controller images from a private registry")
+diff --git a/cmd/flux/install.go b/cmd/flux/install.go
+index bf0ee758..46b18545 100644
+--- a/cmd/flux/install.go
++++ b/cmd/flux/install.go
+@@ -84,7 +84,7 @@ func init() {
+ 	installCmd.Flags().BoolVar(&installArgs.export, "export", false,
+ 		"write the install manifests to stdout and exit")
+ 	installCmd.Flags().StringVarP(&installArgs.version, "version", "v", "",
+-		"toolkit version, when specified the manifests are downloaded from https://github.com/fluxcd/flux2/releases")
++		"toolkit version, when specified the manifests are downloaded from https://github.com/weaveworks/weave-assured-flux/releases")
+ 	installCmd.Flags().StringSliceVar(&installArgs.defaultComponents, "components", rootArgs.defaults.Components,
+ 		"list of components, accepts comma-separated values")
+ 	installCmd.Flags().StringSliceVar(&installArgs.extraComponents, "components-extra", nil,
+diff --git a/manifests/bases/helm-controller/kustomization.yaml b/manifests/bases/helm-controller/kustomization.yaml
+index 099cd240..57136941 100644
+--- a/manifests/bases/helm-controller/kustomization.yaml
++++ b/manifests/bases/helm-controller/kustomization.yaml
+@@ -1,8 +1,8 @@
+ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
+ resources:
+-- https://github.com/fluxcd/helm-controller/releases/download/v0.37.2/helm-controller.crds.yaml
+-- https://github.com/fluxcd/helm-controller/releases/download/v0.37.2/helm-controller.deployment.yaml
++- ./helm-controller.crds.yaml
++- ./helm-controller.deployment.yaml
+ - account.yaml
+ transformers:
+ - labels.yaml
+diff --git a/manifests/bases/image-automation-controller/kustomization.yaml b/manifests/bases/image-automation-controller/kustomization.yaml
+index a89e9847..2cf838fc 100644
+--- a/manifests/bases/image-automation-controller/kustomization.yaml
++++ b/manifests/bases/image-automation-controller/kustomization.yaml
+@@ -1,8 +1,8 @@
+ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
+ resources:
+-- https://github.com/fluxcd/image-automation-controller/releases/download/v0.37.0/image-automation-controller.crds.yaml
+-- https://github.com/fluxcd/image-automation-controller/releases/download/v0.37.0/image-automation-controller.deployment.yaml
++- ./image-automation-controller.crds.yaml
++- ./image-automation-controller.deployment.yaml
+ - account.yaml
+ transformers:
+ - labels.yaml
+diff --git a/manifests/bases/image-reflector-controller/kustomization.yaml b/manifests/bases/image-reflector-controller/kustomization.yaml
+index f8aef1e6..61907995 100644
+--- a/manifests/bases/image-reflector-controller/kustomization.yaml
++++ b/manifests/bases/image-reflector-controller/kustomization.yaml
+@@ -1,8 +1,8 @@
+ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
+ resources:
+-- https://github.com/fluxcd/image-reflector-controller/releases/download/v0.31.1/image-reflector-controller.crds.yaml
+-- https://github.com/fluxcd/image-reflector-controller/releases/download/v0.31.1/image-reflector-controller.deployment.yaml
++- ./image-reflector-controller.crds.yaml
++- ./image-reflector-controller.deployment.yaml
+ - account.yaml
+ transformers:
+ - labels.yaml
+diff --git a/manifests/bases/kustomize-controller/kustomization.yaml b/manifests/bases/kustomize-controller/kustomization.yaml
+index c25d9209..3fc1de02 100644
+--- a/manifests/bases/kustomize-controller/kustomization.yaml
++++ b/manifests/bases/kustomize-controller/kustomization.yaml
+@@ -1,8 +1,8 @@
+ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
+ resources:
+-- https://github.com/fluxcd/kustomize-controller/releases/download/v1.2.1/kustomize-controller.crds.yaml
+-- https://github.com/fluxcd/kustomize-controller/releases/download/v1.2.1/kustomize-controller.deployment.yaml
++- ./kustomize-controller.crds.yaml
++- ./kustomize-controller.deployment.yaml
+ - account.yaml
+ transformers:
+ - labels.yaml
+diff --git a/manifests/bases/notification-controller/kustomization.yaml b/manifests/bases/notification-controller/kustomization.yaml
+index af3abbc1..a4f49446 100644
+--- a/manifests/bases/notification-controller/kustomization.yaml
++++ b/manifests/bases/notification-controller/kustomization.yaml
+@@ -1,8 +1,8 @@
+ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
+ resources:
+-- https://github.com/fluxcd/notification-controller/releases/download/v1.2.3/notification-controller.crds.yaml
+-- https://github.com/fluxcd/notification-controller/releases/download/v1.2.3/notification-controller.deployment.yaml
++- ./notification-controller.crds.yaml
++- ./notification-controller.deployment.yaml
+ - account.yaml
+ transformers:
+ - labels.yaml
+diff --git a/manifests/bases/source-controller/kustomization.yaml b/manifests/bases/source-controller/kustomization.yaml
+index 538fc18b..40b85ae8 100644
+--- a/manifests/bases/source-controller/kustomization.yaml
++++ b/manifests/bases/source-controller/kustomization.yaml
+@@ -1,8 +1,8 @@
+ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
+ resources:
+-- https://github.com/fluxcd/source-controller/releases/download/v1.2.3/source-controller.crds.yaml
+-- https://github.com/fluxcd/source-controller/releases/download/v1.2.3/source-controller.deployment.yaml
++- ./source-controller.crds.yaml
++- ./source-controller.deployment.yaml
+ - account.yaml
+ transformers:
+ - labels.yaml
+diff --git a/manifests/crds/kustomization.yaml b/manifests/crds/kustomization.yaml
+index 97e8cbcc..eea40455 100644
+--- a/manifests/crds/kustomization.yaml
++++ b/manifests/crds/kustomization.yaml
+@@ -1,9 +1,9 @@
+ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
+ resources:
+-- https://github.com/fluxcd/source-controller/releases/download/v1.2.3/source-controller.crds.yaml
+-- https://github.com/fluxcd/kustomize-controller/releases/download/v1.2.1/kustomize-controller.crds.yaml
+-- https://github.com/fluxcd/helm-controller/releases/download/v0.37.2/helm-controller.crds.yaml
+-- https://github.com/fluxcd/notification-controller/releases/download/v1.2.3/notification-controller.crds.yaml
+-- https://github.com/fluxcd/image-reflector-controller/releases/download/v0.31.1/image-reflector-controller.crds.yaml
+-- https://github.com/fluxcd/image-automation-controller/releases/download/v0.37.0/image-automation-controller.crds.yaml
++- ./source-controller.crds.yaml
++- ./kustomize-controller.crds.yaml
++- ./helm-controller.crds.yaml
++- ./notification-controller.crds.yaml
++- ./image-reflector-controller.crds.yaml
++- ./image-automation-controller.crds.yaml
+diff --git a/manifests/install/kustomization.yaml b/manifests/install/kustomization.yaml
+index edce8ca8..bfe3a8b6 100644
+--- a/manifests/install/kustomization.yaml
++++ b/manifests/install/kustomization.yaml
+@@ -15,14 +15,14 @@ transformers:
+   - labels.yaml
+ images:
+   - name: fluxcd/source-controller
+-    newName: ghcr.io/fluxcd/source-controller
++    newName: ghcr.io/weaveworks/source-controller
+   - name: fluxcd/kustomize-controller
+-    newName: ghcr.io/fluxcd/kustomize-controller
++    newName: ghcr.io/weaveworks/kustomize-controller
+   - name: fluxcd/helm-controller
+-    newName: ghcr.io/fluxcd/helm-controller
++    newName: ghcr.io/weaveworks/helm-controller
+   - name: fluxcd/notification-controller
+-    newName: ghcr.io/fluxcd/notification-controller
++    newName: ghcr.io/weaveworks/notification-controller
+   - name: fluxcd/image-reflector-controller
+-    newName: ghcr.io/fluxcd/image-reflector-controller
++    newName: ghcr.io/weaveworks/image-reflector-controller
+   - name: fluxcd/image-automation-controller
+-    newName: ghcr.io/fluxcd/image-automation-controller
++    newName: ghcr.io/weaveworks/image-automation-controller
+diff --git a/pkg/manifestgen/install/install.go b/pkg/manifestgen/install/install.go
+index 594997c2..7ed17ecb 100644
+--- a/pkg/manifestgen/install/install.go
++++ b/pkg/manifestgen/install/install.go
+@@ -91,7 +91,7 @@ func Generate(options Options, manifestsBase string) (*manifestgen.Manifest, err
+ 
+ // GetLatestVersion calls the GitHub API and returns the latest released version.
+ func GetLatestVersion() (string, error) {
+-	ghURL := "https://api.github.com/repos/fluxcd/flux2/releases/latest"
++	ghURL := "https://api.github.com/repos/weaveworks/weave-assured-flux/releases/latest"
+ 	c := cleanhttp.DefaultClient()
+ 	c.Timeout = 15 * time.Second
+ 
+@@ -121,7 +121,7 @@ func ExistingVersion(version string) (bool, error) {
+ 		version = "v" + version
+ 	}
+ 
+-	ghURL := fmt.Sprintf("https://api.github.com/repos/fluxcd/flux2/releases/tags/%s", version)
++	ghURL := fmt.Sprintf("https://api.github.com/repos/weaveworks/weave-assured-flux/releases/tags/%s", version)
+ 	c := cleanhttp.DefaultClient()
+ 	c.Timeout = 15 * time.Second
+ 
+diff --git a/pkg/manifestgen/install/options.go b/pkg/manifestgen/install/options.go
+index a456007b..7b06d6e8 100644
+--- a/pkg/manifestgen/install/options.go
++++ b/pkg/manifestgen/install/options.go
+@@ -45,12 +45,12 @@ func MakeDefaultOptions() Options {
+ 		Components:             []string{"source-controller", "kustomize-controller", "helm-controller", "notification-controller"},
+ 		ComponentsExtra:        []string{"image-reflector-controller", "image-automation-controller"},
+ 		EventsAddr:             "",
+-		Registry:               "ghcr.io/fluxcd",
++		Registry:               "ghcr.io/weaveworks",
+ 		ImagePullSecret:        "",
+ 		WatchAllNamespaces:     true,
+ 		NetworkPolicy:          true,
+ 		LogLevel:               "info",
+-		BaseURL:                "https://github.com/fluxcd/flux2/releases",
++		BaseURL:                "https://github.com/weaveworks/weave-assured-flux/releases",
+ 		NotificationController: "notification-controller",
+ 		ManifestFile:           "gotk-components.yaml",
+ 		Timeout:                time.Minute,

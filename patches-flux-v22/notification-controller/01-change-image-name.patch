@@ -1,0 +1,20 @@
+Change image name to target weaveworks registry
+
+From: Soule BA <bah.soule@gmail.com>
+
+
+---
+ config/manager/kustomization.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/config/manager/kustomization.yaml b/config/manager/kustomization.yaml
+index b2dd4ba..877939c 100644
+--- a/config/manager/kustomization.yaml
++++ b/config/manager/kustomization.yaml
+@@ -5,5 +5,5 @@ resources:
+   - service.yaml
+ images:
+   - name: fluxcd/notification-controller
+-    newName: fluxcd/notification-controller
++    newName: ghcr.io/weaveworks/notification-controller
+     newTag: v1.2.3

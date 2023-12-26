@@ -1,0 +1,66 @@
+Change image name to target weaveworks registry
+
+From: Soule BA <bah.soule@gmail.com>
+
+
+---
+ config/default/kustomization.yaml |    4 ++--
+ config/manager/kustomization.yaml |    2 +-
+ go.mod                            |    2 +-
+ go.sum                            |    4 ++--
+ 4 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/config/default/kustomization.yaml b/config/default/kustomization.yaml
+index d2faf29..f86eb73 100644
+--- a/config/default/kustomization.yaml
++++ b/config/default/kustomization.yaml
+@@ -2,8 +2,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
+ kind: Kustomization
+ namespace: kustomize-system
+ resources:
+-- https://github.com/fluxcd/source-controller/releases/download/v1.2.2/source-controller.crds.yaml
+-- https://github.com/fluxcd/source-controller/releases/download/v1.2.2/source-controller.deployment.yaml
++- https://github.com/weaveworks/weave-assured-flux/releases/download/v2.2.0-wa/source-controller.crds.yaml
++- https://github.com/weaveworks/weave-assured-flux/releases/download/v2.2.0-wa/source-controller.deployment.yaml
+ - ../crd
+ - ../rbac
+ - ../manager
+diff --git a/config/manager/kustomization.yaml b/config/manager/kustomization.yaml
+index 23a32db..6cd393e 100644
+--- a/config/manager/kustomization.yaml
++++ b/config/manager/kustomization.yaml
+@@ -4,5 +4,5 @@ resources:
+   - deployment.yaml
+ images:
+   - name: fluxcd/kustomize-controller
+-    newName: fluxcd/kustomize-controller
++    newName: ghcr.io/weaveworks/kustomize-controller
+     newTag: v1.2.1
+diff --git a/go.mod b/go.mod
+index 4b684e1..7e7c29c 100644
+--- a/go.mod
++++ b/go.mod
+@@ -184,7 +184,7 @@ require (
+ 	go.starlark.net v0.0.0-20231121155337-90ade8b19d09 // indirect
+ 	go.uber.org/multierr v1.11.0 // indirect
+ 	go.uber.org/zap v1.26.0 // indirect
+-	golang.org/x/crypto v0.16.0 // indirect
++	golang.org/x/crypto v0.17.0 // indirect
+ 	golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb // indirect
+ 	golang.org/x/mod v0.14.0 // indirect
+ 	golang.org/x/oauth2 v0.15.0 // indirect
+diff --git a/go.sum b/go.sum
+index 3b6fcfa..36a9ae9 100644
+--- a/go.sum
++++ b/go.sum
+@@ -439,8 +439,8 @@ golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPh
+ golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
+ golang.org/x/crypto v0.3.1-0.20221117191849-2c476679df9a/go.mod h1:hebNnKkNXi2UzZN1eVRvBB7co0a+JxK6XbPiWVs/3J4=
+ golang.org/x/crypto v0.7.0/go.mod h1:pYwdfH91IfpZVANVyUOhSIPZaFoJGxTFbZhFTx+dXZU=
+-golang.org/x/crypto v0.16.0 h1:mMMrFzRSCF0GvB7Ne27XVtVAaXLrPmgPC7/v0tkwHaY=
+-golang.org/x/crypto v0.16.0/go.mod h1:gCAAfMLgwOJRpTjQ2zCCt2OcSfYMTeZVSRtQlPC7Nq4=
++golang.org/x/crypto v0.17.0 h1:r8bRNjWL3GshPW3gkd+RpvzWrZAwPS49OmTGZ/uhM4k=
++golang.org/x/crypto v0.17.0/go.mod h1:gCAAfMLgwOJRpTjQ2zCCt2OcSfYMTeZVSRtQlPC7Nq4=
+ golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
+ golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb h1:c0vyKkb6yr3KR7jEfJaOSv4lG7xPkbN6r52aJz1d8a8=
+ golang.org/x/exp v0.0.0-20231206192017-f3f8817b8deb/go.mod h1:iRJReGqOEeBhDZGkGbynYwcHlctCvnjTYIamk7uXpHI=
