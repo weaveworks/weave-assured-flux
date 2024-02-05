@@ -76,7 +76,7 @@ jobs:
           echo "base_version=${BASE_VERSION}" >> $GITHUB_OUTPUT
       - name: Generate images meta
         id: meta
-        uses: docker/metadata-action@9dc751fe249ad99385a2583ee0d084c400eee04e # v5.4.0
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         with:
           images: |
             ghcr.io/weaveworks/${{ inputs.controller }}
@@ -94,7 +94,7 @@ jobs:
           platforms: linux/amd64,linux/arm/v7,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-      - uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+      - uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 # v3.4.0
       - name: Sign images
         env:
           COSIGN_EXPERIMENTAL: 1

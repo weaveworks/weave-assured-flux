@@ -235,9 +235,9 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
       - name: Setup Syft
-        uses: anchore/sbom-action/download-syft@5ecf649a417b8ae17dc8383dc32d46c03f2312df # v0.15.1
+        uses: anchore/sbom-action/download-syft@b6a39da80722a2cb0ef5d197531764a89b5d48c3 # v0.15.8
       - name: Setup Cosign
-        uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+        uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 # v3.4.0
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
@@ -409,7 +409,7 @@ jobs:
           --path="./flux-system" \
           --source=${{ github.repositoryUrl }} \
           --revision="${{ github.ref_name }}@sha1:${{ github.sha }}"
-      - uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+      - uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 # v3.4.0
       - name: Sign manifests
         env:
           COSIGN_EXPERIMENTAL: 1
@@ -480,7 +480,7 @@ jobs:
           echo "FLUX_CLI_IMAGE_DIGEST=${{ needs.release-flux-cli.outputs.image_digest }}" >> ./ghcr.io/flux-system/image_digests
           
           oras push -u weave-ghcr-bot -p ${{ secrets.WEAVE_ASSURED_GHCR_BOT_TOKEN  }} ghcr.io/weaveworks/flux-images-digests:${{ steps.patch.outputs.version }} ./ghcr.io/flux-system/image_digests
-      - uses: sigstore/cosign-installer@9614fae9e5c5eddabb09f90a270fcb487c9f7149 # v3.3.0
+      - uses: sigstore/cosign-installer@e1523de7571e31dbe865fd2e80c5c7c23ae71eb4 # v3.4.0
       - name: Sign manifests
         env:
           COSIGN_EXPERIMENTAL: 1
